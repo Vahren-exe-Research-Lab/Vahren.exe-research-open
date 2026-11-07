@@ -38,6 +38,14 @@ class UnattendedContributionsTests(unittest.TestCase):
         self.assertIn('ROOT / "AUTO_MERGE.md"', sources)
         self.assertIn('REPORTS = sorted(ROOT.glob("REF_*.md"))', sources)
 
+    def test_failed_site_deployments_get_periodic_retries(self):
+        recovery = (ROOT / ".github/workflows/pages-recovery.yml").read_text(encoding="utf-8")
+        self.assertIn("schedule:", recovery)
+        self.assertIn("actions: write", recovery)
+        self.assertIn("if [[ \"$status\" != 'completed' ]]", recovery)
+        self.assertIn("if [[ \"$conclusion\" == 'success' ]]", recovery)
+        self.assertIn("actions/workflows/pages.yml/dispatches", recovery)
+
 
 if __name__ == "__main__":
     unittest.main()
