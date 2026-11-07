@@ -16,6 +16,14 @@
 GitHubの仕様上、**リポジトリ本体への直接pushは書き込み権限を持つアカウントに限られます**。
 誰でも編集できるWikiは別途GitHubの設定で編集権限を開放できます。
 
+## PRの自動統合について
+
+**どなたでも提出したPRは、GitHub Actionsが人間の承認やテスト結果を待たずに自動統合します。** 通常はPR提出直後に処理し、取りこぼしは約30分ごとに再確認します。GitHubがファイルの衝突などで統合できない場合はPRを残し、後の実行で再試行します。
+
+公開の研究データ（`symbols.tsv`、`structs.tsv`など）を変更したPRも対象です。統合後に検索事典を再生成して公開サイトへ反映します。自動テストは参考情報で、**失敗しても統合を妨げません**。そのため、誤った研究内容や全削除なども反映され得ます。
+
+この仕組みはGitHub Actionsで実行され、OpenAIの契約やAI APIキーは不要です。手順は[自動統合の説明](AUTO_MERGE.md)をご覧ください。
+
 ## 研究サイト・質問・共同調査
 
 - **[検索できるWeb研究事典](https://vahren-exe-research-lab.github.io/Vahren.exe-research-open/)**：関数・アドレスをブラウザで検索・閲覧できます。
@@ -78,7 +86,7 @@ python -B -m unittest discover -s tests -v
 
 ## セキュリティと非公開報告
 
-トークン・個人情報・公開してはいけない研究資料を見つけた場合は、公開Issueに貼らず、[SECURITY.md](SECURITY.md)に記載した**非公開の脆弱性報告**を利用してください。GitHubのSecret Scanning・Push Protectionに加えて、Gitleaksと公開対象ファイルの検査を自動実行します。
+トークン・個人情報・公開してはいけない研究資料を見つけた場合は、公開Issueに貼らず、[SECURITY.md](SECURITY.md)に記載した**非公開の脆弱性報告**を利用してください。GitHubのSecret Scanningに加えて、Gitleaksと公開対象ファイルの検査を自動実行します（投稿を止めるPush Protectionは現在無効です）。
 
 ## 自動テスト（GitHub Actions）
 

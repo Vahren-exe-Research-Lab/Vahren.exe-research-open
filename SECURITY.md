@@ -21,6 +21,6 @@
 
 このセキュリティポリシーは、公開した研究文書、検索用Pythonツール、GitHub Actionsおよび研究サイトを対象とします。
 
-Pull Requestとmainの変更時、および毎週、Gitleaks（Git履歴・作業ツリー）、出典SHAや公開対象ファイルの検査を実施します。GitHub標準のSecret ScanningとPush Protectionも有効にしています。
+Pull Requestとmainの変更時、および毎週、Gitleaks（Git履歴・作業ツリー）、出典SHAや公開対象ファイルの検査を実施します。GitHub標準のSecret Scanningも有効にしています。投稿を遮るPush Protectionは自由な投稿を優先して無効にしています。
 
 **検査が成功しても機密情報や匿名性の問題が絶対に存在しないことを保証するものではありません。** 問題を発見した場合は、非公開の報告経路をご利用ください。

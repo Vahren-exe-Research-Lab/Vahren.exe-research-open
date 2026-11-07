@@ -8,6 +8,7 @@ on:
       - "REF_*.md"
       - "reference/**"
       - "CONTRIBUTING.md"
+      - "AUTO_MERGE.md"
       - "SECURITY.md"
       - "RELEASE_NOTES.md"
       - "SCOPE_AND_LIMITATIONS.md"
@@ -43,6 +44,9 @@ jobs:
 
       - name: Install documentation builder
         run: python -m pip install -r requirements-docs.txt
+
+      - name: Regenerate searchable reference pages from research tables
+        run: python -B tools/build_reference.py
 
       - name: Prepare public-only documents
         run: python -B tools/prepare_docs_site.py

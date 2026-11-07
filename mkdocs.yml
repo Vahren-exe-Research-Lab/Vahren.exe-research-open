@@ -69,6 +69,7 @@ nav:
       - 起動・読み込み: REF_STARTUP_LOADING.md
   - 参加と利用:
       - 参加方法: CONTRIBUTING.md
+      - PRの自動統合: AUTO_MERGE.md
       - セキュリティ報告: SECURITY.md
       - 出典IDの意味: EVIDENCE_REFERENCES.md
       - 対象・制限: SCOPE_AND_LIMITATIONS.md

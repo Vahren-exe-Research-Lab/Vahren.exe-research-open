@@ -1,0 +1,90 @@
+name: Unattended public PR merger
+
+# PRs are offered by anyone. This trusted workflow never checks out or
+# executes the PR's files. No review, labels, or CI-success gates are used.
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, reopened, synchronize, ready_for_review]
+  schedule:
+    - cron: '13,43 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: unattended-public-merges-main
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    name: Merge eligible public PRs without review gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Merge every non-draft PR that GitHub can merge
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_PR_NUMBER: ${{ github.event.pull_request.number || '' }}
+        run: |
+          set -euo pipefail
+
+          # The pull_request_target event uses only the repository's trusted
+          # workflow. Do not checkout, import, or run code from a PR here.
+          if [[ "$EVENT_NAME" == 'pull_request_target' && "$EVENT_PR_NUMBER" =~ ^[0-9]+$ ]]; then
+            numbers="$EVENT_PR_NUMBER"
+          else
+            # A recurring sweep recovers missed events and retries conflicts
+            # once other changes make a PR mergeable.
+            numbers="$(gh api --paginate "repos/$GH_REPO/pulls?state=open&base=main&per_page=100" --jq '.[].number')"
+          fi
+
+          if [[ -z "$numbers" ]]; then
+            echo 'No open PRs to merge.'
+            exit 0
+          fi
+
+          while IFS= read -r number; do
+            [[ "$number" =~ ^[0-9]+$ ]] || continue
+
+            if ! pr="$(gh api "repos/$GH_REPO/pulls/$number")"; then
+              echo "PR #$number: unable to fetch; retry on next run."
+              continue
+            fi
+
+            state="$(jq -r '.state' <<< "$pr")"
+            target="$(jq -r '.base.ref' <<< "$pr")"
+            draft="$(jq -r '.draft' <<< "$pr")"
+            sha="$(jq -r '.head.sha' <<< "$pr")"
+
+            if [[ "$state" != 'open' || "$target" != 'main' || "$draft" != 'false' ]]; then
+              echo "PR #$number: closed, not targeting main, or still draft."
+              continue
+            fi
+
+            echo "Attempting PR #$number (no approvals or checks required)."
+            if gh api --method PUT "repos/$GH_REPO/pulls/$number/merge" \
+                -f merge_method=squash -f "sha=$sha" --jq '.merged' 2>/tmp/auto-merge-error.txt; then
+              echo "PR #$number: merged. Triggering searchable site and advisory checks."
+
+              # GITHUB_TOKEN-created merges do not start push workflows.
+              # workflow_dispatch is the GitHub-supported exception.
+              for workflow in pages.yml research-ci.yml security.yml; do
+                if gh api --method POST \
+                    "repos/$GH_REPO/actions/workflows/$workflow/dispatches" \
+                    -f ref=main >/dev/null; then
+                  echo "Dispatched $workflow"
+                else
+                  echo "Unable to dispatch $workflow. It can be run manually."
+                fi
+              done
+            else
+              echo "PR #$number: GitHub could not merge automatically; next sweep will retry."
+            fi
+          done <<< "$numbers"
