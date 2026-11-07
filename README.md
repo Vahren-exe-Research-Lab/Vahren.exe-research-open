@@ -24,6 +24,8 @@ GitHubの仕様上、**リポジトリ本体への直接pushは書き込み権�
 
 この仕組みはGitHub Actionsで実行され、OpenAIの契約やAI APIキーは不要です。手順は[自動統合の説明](AUTO_MERGE.md)をご覧ください。
 
+**初心者の一行訂正でも歓迎です。** 研究の間違いに気づいたら、小さな修正PRから参加できます。
+
 ## 研究サイト・質問・共同調査
 
 - **[検索できるWeb研究事典](https://vahren-exe-research-lab.github.io/Vahren.exe-research-open/)**：関数・アドレスをブラウザで検索・閲覧できます。
