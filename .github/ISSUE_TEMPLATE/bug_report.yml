@@ -12,20 +12,20 @@ body:
       label: 発生した問題
       placeholder: "どのページ・機能で何が起きたか"
     validations:
-      required: true
+      required: false
   - type: textarea
     id: reproduction
     attributes:
       label: 再現方法
       placeholder: "例: python -B tools/search.py symbols xxx"
     validations:
-      required: true
+      required: false
   - type: textarea
     id: expected
     attributes:
       label: 期待した動作
     validations:
-      required: true
+      required: false
   - type: input
     id: environment
     attributes:
@@ -37,4 +37,4 @@ body:
       label: 安全確認
       options:
         - label: ログ等に個人情報・秘密情報・原作ファイルが入っていないことを確認しました
-          required: true
+          required: false

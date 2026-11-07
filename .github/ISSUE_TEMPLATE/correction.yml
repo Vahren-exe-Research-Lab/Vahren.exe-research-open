@@ -8,20 +8,20 @@ body:
       label: 対象ページ・アドレス
       placeholder: "例: reference/symbols/0048D6A0.md"
     validations:
-      required: true
+      required: false
   - type: textarea
     id: current
     attributes:
       label: 現在の記載
     validations:
-      required: true
+      required: false
   - type: textarea
     id: corrected
     attributes:
       label: 訂正案と根拠
       description: "実測・静的・推定を区別してください"
     validations:
-      required: true
+      required: false
   - type: textarea
     id: unfinished
     attributes:

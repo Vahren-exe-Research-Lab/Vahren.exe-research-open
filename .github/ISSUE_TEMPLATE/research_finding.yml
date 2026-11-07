@@ -14,14 +14,14 @@ body:
       description: "例: Vahren.exe 0x0048D6A0、UnitRuntime+0x90"
       placeholder: "VA / 構造体名・オフセット"
     validations:
-      required: true
+      required: false
   - type: input
     id: version
     attributes:
       label: 対象バージョン
       placeholder: "迫真戦記 ver0.67"
     validations:
-      required: true
+      required: false
   - type: dropdown
     id: evidence
     attributes:
@@ -33,21 +33,21 @@ body:
         - DYNAMIC（実機観測あり）
         - その他（本文で説明）
     validations:
-      required: true
+      required: false
   - type: textarea
     id: findings
     attributes:
       label: 発見内容
       description: "観測した事実と推定を分けて記述"
     validations:
-      required: true
+      required: false
   - type: textarea
     id: evidence_source
     attributes:
       label: 根拠・再現手順
       description: "共有可能なアドレス・関数名・手順のみ。機密のファイルや個人情報は記載しない"
     validations:
-      required: true
+      required: false
   - type: textarea
     id: limitations
     attributes:
@@ -58,4 +58,4 @@ body:
       label: 投稿前の確認
       options:
         - label: 原作素材、非公開の出典、個人情報、認証情報を添付していません
-          required: true
+          required: false

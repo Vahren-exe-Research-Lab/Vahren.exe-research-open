@@ -4,6 +4,18 @@
 
 このリポジトリは、ゲーム内部の関数・メモリ・DAT・戦闘・セーブ等を調べる共同研究者向けの**読みやすい研究事典**です。過去の非公開Git履歴や作業日誌をそのまま公開するのではなく、研究結果だけを新しい履歴でまとめています。
 
+## 誰でも参加できます
+
+[Issue](https://github.com/Vahren-exe-Research-Lab/Vahren.exe-research-open/issues/new/choose)、
+[Discussions](https://github.com/Vahren-exe-Research-Lab/Vahren.exe-research-open/discussions)、
+[修正PR](https://github.com/Vahren-exe-Research-Lab/Vahren.exe-research-open/pulls)は、どなたでも自由に利用できます。
+
+事前承認・指定の研究ID・決まった報告様式は必須ではありません。
+不完全な調査や訂正案でも歓迎します。自動検査は参考情報であり統合の必須条件ではありません。
+
+GitHubの仕様上、**リポジトリ本体への直接pushは書き込み権限を持つアカウントに限られます**。
+誰でも編集できるWikiは別途GitHubの設定で編集権限を開放できます。
+
 ## 研究サイト・質問・共同調査
 
 - **[検索できるWeb研究事典](https://vahren-exe-research-lab.github.io/Vahren.exe-research-open/)**：関数・アドレスをブラウザで検索・閲覧できます。
