@@ -88,6 +88,13 @@ class PublicCandidateTests(unittest.TestCase):
   self.assertTrue(all(row.get('source_evidence_id','').startswith('EVID-') for row in calls))
   self.assertEqual(len({row['source_evidence_id'] for row in calls}),1)
 
+ def test_cc0_and_rights_scope(self):
+  legal=(ROOT/'LICENSE').read_text(encoding='utf8')
+  self.assertIn('Creative Commons',legal)
+  self.assertIn('CC0',legal)
+  for name in ('README.md','SCOPE_AND_LIMITATIONS.md','RELEASE_NOTES.md','CONTRIBUTING.md'):
+   self.assertIn('CC0',(ROOT/name).read_text(encoding='utf8'))
+
  def test_no_original_assets(self):
   bad_extensions={".exe",".dll",".dat",".mp3",".ogg",".wav",".png",".jpg",".jpeg",".zip",".7z",".sav",".db",".sqlite",".mp4"}
   paths=[p.relative_to(ROOT).as_posix() for p in ROOT.rglob("*")

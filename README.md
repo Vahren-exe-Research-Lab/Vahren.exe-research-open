@@ -58,6 +58,10 @@ python -B -m unittest discover -s tests -v
 
 [公開出典IDの説明](EVIDENCE_REFERENCES.md)
 
+## 自動テスト（GitHub Actions）
+
+Pull Requestと`main`への変更のたびに、[Research CI](.github/workflows/research-ci.yml)でPythonテスト、辞書・CALLの整合性、生成ページの差分、検索CLIを自動検査します。結果は[Actionsタブ](https://github.com/Vahren-exe-Research-Lab/Vahren.exe-research-open/actions/workflows/research-ci.yml)から確認できます。検査の合格は、研究内容そのものの実機検証や権利関係の保証ではありません。
+
 ## 研究の読み方・制約
 
 研究報告にある「STATIC（静的解析）」「INFERRED（推定）」「VERIFY（未確認）」「DYNAMIC（実機観測）」「Golden」「READY」は異なる段階です。**解析記録が保存されていることは、ゲーム上で実証されたことを意味しません。**
@@ -68,4 +72,4 @@ python -B -m unittest discover -s tests -v
 
 ## 権利について
 
-研究内容は原作の著作権者・制作者とは独立した調査記録です。商標・著作権等は各権利者に帰属します。原作ファイルの再配布は行いません。公開・第三者コードの利用・資料のライセンスについては、[権利・提供範囲](SCOPE_AND_LIMITATIONS.md)も確認してください。
+原作の著作権者・制作者とは独立した調査記録です。**公開者が自ら権利を持つ独自の文書・コード等には[CC0 1.0 Universal](LICENSE)を適用**します。原作ゲームや第三者の著作物・商標等には適用されません。原作ファイルは再配布せず、他者の権利を放棄するものでもありません。詳しくは[提供範囲と制約](SCOPE_AND_LIMITATIONS.md)をご確認ください。

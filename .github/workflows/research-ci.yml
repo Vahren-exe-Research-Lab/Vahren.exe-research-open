@@ -1,0 +1,51 @@
+name: Research CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# PRs may contain untrusted code. Never grant write access or use pull_request_target.
+permissions:
+  contents: read
+
+concurrency:
+  group: research-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Research data and safety checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository without persisted credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+
+      - name: Run research and safety regression tests
+        run: python -B -m unittest discover -s tests -v
+
+      - name: Verify generated reference pages are up-to-date
+        shell: bash
+        run: |
+          python -B tools/build_reference.py
+          git diff --exit-code -- reference/README.md reference/symbols reference/structs
+
+      - name: Smoke-test search CLI
+        shell: bash
+        run: |
+          python -B tools/search.py symbols Battle_ConstructScene --json > /dev/null
+          python -B tools/search.py fields hp --json > /dev/null
+
+      - name: Verify whitespace and unexpected generated changes
+        run: git diff --check
