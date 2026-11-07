@@ -1,8 +1,14 @@
-# Vahren.exe 解析・拡張研究 — 公開候補
+# Vahren.exe 解析・拡張研究 — 公開資料
 
-> **公開版：内容は研究上の見解と未検証事項を含みます。** 迫真戦記 ver0.67 / Vahren.exe の逆解析で得た研究のうち、共有候補として選別した情報を収録しています。原作ゲーム本体・画像・音声・セーブデータは含めません。
+> **公開版：内容は研究上の見解と未検証事項を含みます。** 迫真戦記 ver0.67 / Vahren.exe の逆解析で得た研究のうち、共有できるものとして選別した情報を収録しています。原作ゲーム本体・画像・音声・セーブデータは含めません。
 
 このリポジトリは、ゲーム内部の関数・メモリ・DAT・戦闘・セーブ等を調べる共同研究者向けの**読みやすい研究事典**です。過去の非公開Git履歴や作業日誌をそのまま公開するのではなく、研究結果だけを新しい履歴でまとめています。
+
+## 研究サイト・質問・共同調査
+
+- **[検索できるWeb研究事典](https://vahren-exe-research-lab.github.io/Vahren.exe-research-open/)**：関数・アドレスをブラウザで検索・閲覧できます。
+- **[GitHub Discussions](https://github.com/Vahren-exe-Research-Lab/Vahren.exe-research-open/discussions)**：質問・相談・研究のアイデアを話し合う場所です。
+- **[Issue](https://github.com/Vahren-exe-Research-Lab/Vahren.exe-research-open/issues/new/choose)**：バグ・訂正・新しい研究結果をテンプレートに沿って報告できます。
 
 ## 何が入っている？
 

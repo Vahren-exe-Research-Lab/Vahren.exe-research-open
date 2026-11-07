@@ -1,0 +1,74 @@
+site_name: Vahren.exe 解析・拡張研究
+site_description: 迫真戦記 ver0.67 / Vahren.exe の非公式解析・拡張研究事典
+site_url: https://vahren-exe-research-lab.github.io/Vahren.exe-research-open/
+repo_name: Vahren-exe-Research-Lab/Vahren.exe-research-open
+repo_url: https://github.com/Vahren-exe-Research-Lab/Vahren.exe-research-open
+docs_dir: docs_generated
+site_dir: site
+edit_uri: ""
+
+theme:
+  name: material
+  language: ja
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: ダークモードに切り替える
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: ライトモードに切り替える
+
+plugins:
+  - search:
+      lang: ja
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+
+nav:
+  - ホーム: index.md
+  - 研究ガイド: GUIDE.md
+  - 関数・アドレス事典: reference/README.md
+  - 分野別研究:
+      - 戦闘乗っ取り: REF_BATTLE_TAKEOVER.md
+      - 戦闘AI・士気: REF_BATTLE_AI_MORALE.md
+      - 経験値・召喚: REF_UNIT_EXP_SUMMON.md
+      - スキル処理: REF_SKILL_POST_ACTION.md
+      - DAT挙動: REF_DAT_BEHAVIOR.md
+      - UI: REF_UI_SYSTEM.md
+      - スクリプトVM: REF_SCRIPT_VM_CONTEXT.md
+      - セーブ形式: REF_SAVE_FORMAT.md
+      - セーブ永続化: REF_SAVE_PERSISTENCE.md
+      - 戦略・経済: REF_STRATEGY_ECONOMY.md
+      - ランダムイベント: REF_RANDOM_EVENTS.md
+      - RTSシナリオ: REF_RTS_SCENARIO.md
+      - シナリオ互換: REF_SCENARIO_COMPAT.md
+      - 音声・Vorbis: REF_AUDIO_VORBIS.md
+      - 起動・読み込み: REF_STARTUP_LOADING.md
+  - 参加と利用:
+      - 参加方法: CONTRIBUTING.md
+      - 出典IDの意味: EVIDENCE_REFERENCES.md
+      - 対象・制限: SCOPE_AND_LIMITATIONS.md
+      - 公開資料: RELEASE_NOTES.md

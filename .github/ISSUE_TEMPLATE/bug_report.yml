@@ -1,0 +1,40 @@
+name: "検索・資料表示の不具合"
+description: "検索ツール、事典リンク、生成ページ等のバグを報告する"
+title: "[不具合] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        公開資料と検索機能の問題向けです。原作ゲーム本体の不具合報告には使用しないでください。
+  - type: textarea
+    id: summary
+    attributes:
+      label: 発生した問題
+      placeholder: "どのページ・機能で何が起きたか"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 再現方法
+      placeholder: "例: python -B tools/search.py symbols xxx"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期待した動作
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: 環境
+      description: "OS、Pythonバージョン等（秘密情報は伏せる）"
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 安全確認
+      options:
+        - label: ログ等に個人情報・秘密情報・原作ファイルが入っていないことを確認しました
+          required: true

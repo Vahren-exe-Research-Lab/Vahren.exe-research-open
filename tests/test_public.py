@@ -40,7 +40,7 @@ class PublicCandidateTests(unittest.TestCase):
  def test_all_local_markdown_targets_exist(self):
   bad=[]
   for f in ROOT.rglob("*.md"):
-   if ".git" in f.parts:continue
+   if any(x in f.parts for x in (".git","docs_generated","site","venv-docs")):continue
    for link in md_links(f.read_text(encoding="utf-8")):
     url=link.strip().split(" ",1)[0]
     if url.startswith(("http:","https:","mailto:","#","data:")):continue
@@ -62,7 +62,7 @@ class PublicCandidateTests(unittest.TestCase):
   ]
   findings=[]
   for f in ROOT.rglob("*"):
-   if not f.is_file() or any(x in f.parts for x in (".git","__pycache__")):continue
+   if not f.is_file() or any(x in f.parts for x in (".git","__pycache__","docs_generated","site","venv-docs")):continue
    try:content=f.read_bytes()
    except OSError:continue
    if b"\x00" in content:findings.append((str(f),"binary NUL"));continue
@@ -74,13 +74,12 @@ class PublicCandidateTests(unittest.TestCase):
   import re
   sha1=re.compile(r"(?<![0-9a-fA-F])[0-9a-fA-F]{40}(?![0-9a-fA-F])")
   found=[p.relative_to(ROOT).as_posix() for p in ROOT.rglob("*.md")
-         if ".git" not in p.parts and sha1.search(p.read_text(encoding="utf-8"))]
+         if not any(x in p.parts for x in (".git","docs_generated","site","venv-docs")) and sha1.search(p.read_text(encoding="utf-8"))]
   self.assertEqual(found,[])
  def test_public_evidence_ids_do_not_expose_sha256(self):
   import re,csv
   hashes=re.compile(r'(?<![0-9a-fA-F])[0-9a-fA-F]{64}(?![0-9a-fA-F])')
-  paths=[p for p in ROOT.rglob('*') if p.is_file() and '.git' not in p.parts
-         and '__pycache__' not in p.parts and p.suffix in ('.md','.tsv','.jsonl','.json','.py')]
+  paths=[p for p in ROOT.rglob('*') if p.is_file() and not any(x in p.parts for x in ('.git','__pycache__','docs_generated','site','venv-docs')) and p.suffix in ('.md','.tsv','.jsonl','.json','.py')]
   self.assertFalse([p.relative_to(ROOT).as_posix() for p in paths if hashes.search(p.read_text(encoding='utf8'))])
   with (ROOT/'reference/static_calls.tsv').open(encoding='utf8',newline='') as f:
    calls=list(csv.DictReader(f,delimiter='\t'))
@@ -98,7 +97,7 @@ class PublicCandidateTests(unittest.TestCase):
  def test_no_original_assets(self):
   bad_extensions={".exe",".dll",".dat",".mp3",".ogg",".wav",".png",".jpg",".jpeg",".zip",".7z",".sav",".db",".sqlite",".mp4"}
   paths=[p.relative_to(ROOT).as_posix() for p in ROOT.rglob("*")
-         if p.is_file() and not any(x in p.parts for x in (".git","__pycache__"))
+         if p.is_file() and not any(x in p.parts for x in (".git","__pycache__","docs_generated","site","venv-docs"))
          and p.suffix.lower() in bad_extensions]
   self.assertEqual(paths,[])
 if __name__=="__main__":unittest.main()

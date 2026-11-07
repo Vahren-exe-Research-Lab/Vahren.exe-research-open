@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 質問・相談はDiscussionsへ
+    url: https://github.com/Vahren-exe-Research-Lab/Vahren.exe-research-open/discussions
+    about: 研究の質問、共同調査の相談、アイデアはこちらへ。個人情報・機密資料は投稿しないでください。

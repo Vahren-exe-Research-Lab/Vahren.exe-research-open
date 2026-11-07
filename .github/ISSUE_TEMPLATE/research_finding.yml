@@ -1,0 +1,61 @@
+name: "研究発見の報告"
+description: "関数・メモリ・DAT等の新しい解析結果を報告する"
+title: "[研究] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        研究の確度・出典・再現方法を明記してください。原作ファイル、個人情報、APIキー、非公開URLは貼らないでください。
+  - type: input
+    id: target
+    attributes:
+      label: 対象の関数・VA・フィールド
+      description: "例: Vahren.exe 0x0048D6A0、UnitRuntime+0x90"
+      placeholder: "VA / 構造体名・オフセット"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: 対象バージョン
+      placeholder: "迫真戦記 ver0.67"
+    validations:
+      required: true
+  - type: dropdown
+    id: evidence
+    attributes:
+      label: 確認レベル
+      options:
+        - STATIC（静的解析のみ）
+        - INFERRED（推定）
+        - VERIFY（追加検証待ち）
+        - DYNAMIC（実機観測あり）
+        - その他（本文で説明）
+    validations:
+      required: true
+  - type: textarea
+    id: findings
+    attributes:
+      label: 発見内容
+      description: "観測した事実と推定を分けて記述"
+    validations:
+      required: true
+  - type: textarea
+    id: evidence_source
+    attributes:
+      label: 根拠・再現手順
+      description: "共有可能なアドレス・関数名・手順のみ。機密のファイルや個人情報は記載しない"
+    validations:
+      required: true
+  - type: textarea
+    id: limitations
+    attributes:
+      label: 未確認事項・既知の制約
+  - type: checkboxes
+    id: safeguards
+    attributes:
+      label: 投稿前の確認
+      options:
+        - label: 原作素材、非公開の出典、個人情報、認証情報を添付していません
+          required: true

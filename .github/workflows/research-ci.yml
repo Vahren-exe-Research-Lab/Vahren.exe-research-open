@@ -47,5 +47,16 @@ jobs:
           python -B tools/search.py symbols Battle_ConstructScene --json > /dev/null
           python -B tools/search.py fields hp --json > /dev/null
 
+      - name: Install documentation dependencies
+        run: python -m pip install -r requirements-docs.txt
+
+      - name: Build searchable research docs (no deploy for PRs)
+        shell: bash
+        run: |
+          python -B tools/prepare_docs_site.py
+          python -m mkdocs build --strict
+          test -s site/index.html
+          test -s site/search/search_index.json
+
       - name: Verify whitespace and unexpected generated changes
         run: git diff --check
