@@ -1,0 +1,186 @@
+# Unit / experience / summon: current evidence summary (T011/T012)
+
+Scope: ver0.67 original PE SHA256 EVID-0283.
+Evidence basis: existing B owner reports and independent EXP research on the authorized PC.
+All points below are STATIC or INFERRED unless stated otherwise. Original gameplay Golden PASS=0, strict MATCH=0.
+
+## 1. UnitData experience writer
+- Native 0x551E50 is linked to battle EXP addition, including direct CALL sites 0x547A8C, 0x551167, 0x551C6A and 0x57F4E9.
+- The identified accumulation target is a linked UnitData field at +0x16C; the exact end-to-end caller types, rounding and lifetime are not yet fully verified.
+- Do not equate an inline summon cache with permanent UnitData experience.
+- References: data/T011_T012_EXP_TRAINING_DEATH_CROSSWALK_NATIVE_20261029.md; exp_research_20261021/EXP_RESEARCH_PROGRESS_20261022.md.
+
+## 2. Training and death
+- Training function 0x471E80 uses UnitData+0x170 for a threshold and writes experience to UnitData+0x16C at 0x4723D8; 0x4723DE calls 0x58A650 for level update.
+- The native death path references property dead_penalty at 0x588D77, calls getter 0x46F4C0 from 0x588D7C, and writes the experience result at 0x588DE0.
+- The bundled context.dat has dead_penalty=95; under the normal nonnegative path this is a 95% retention factor, not an unconditional formula for every boundary value.
+- References: data/T011_T012_EXP_TRAINING_DEATH_CROSSWALK_NATIVE_20261029.md; data/T011_DATA_MODEL.md.
+
+## 3. Summon holder and group: different relationships
+- The observed static holder flow is source S+0xC -> SummonFlash+0xC -> child Unit+0xC.
+- Relevant native sites include 0x54ED70, 0x54ED8A, 0x54F074, 0x54F07A and 0x56F720.
+- This proves a propagated holder reference, NOT a unique summon parent ID or experience refund destination.
+- Child membership through 0x568710 and the source pointer used by callers are separate relationships.
+- Four summon-related caller contexts include 0x54DF4B, 0x550219, 0x57F484 and 0x57F492.
+- References: data/T011_SUMMONFLASH_HOLDER_CHAIN_NATIVE_20261027_14H.md; data/T011_SUMMON_CALLER_GROUP_PROVENANCE_NATIVE_20261027_15H.md; data/T011_SUMMON_CALLER_SOURCE_TRIAD_SENTINEL_NATIVE_20261027_16H.md.
+- **Provenance / DUPLICATE_LINKED, not a newly curated x86 finding:** B/T013 source `B-20261013-1141-01` (canonical sanitized intake（原資料は非公開）, historical owner PR #18（非公開の旧出典） head `[非公開Gitオブジェクト参照]`) independently matched original report SHA256 `EVID-0284`. Its `0x577260` lookup/null/`node+0x28`/`ret 0x1C` interpretation is **already** represented by the existing `UnitData_FindSummonRecord` symbol and `EXP_CACHE_STRING_KEY_RECORD_ABI` evidence. The subsequent owner `B-20261013-1436-01` refines helper cursor interpretation; helper internals and runtime summon success remain VERIFY. This new link is historical source preservation and correction lineage, **not** a new semantic CURATED fact, Golden PASS or READY.
+
+## 4. P0 remaining, no inferred READY
+- Verify whether an inline summon EXP store is transferred to persistent UnitData before battle result cleanup.
+- Trace normal and simple-battle EXP paths to the result, save and load boundaries.
+- Compare original unmodified game with a controlled SAVE/MAP/DAT/input/RNG capture before accepting strict compatibility.
+- This document is a curated entrypoint, not a replacement for the original source reports.
+
+## 5. T011 training count and leader-keyed bonus memo (2026-10-31 06H/07H)
+- Original PE SHA256 `EVID-0283` was independently read back. Native E8 at `0x472081` calls `0x595320`; the helper takes a nonzero `Power+0xD8` training count or falls back to scenario `training_up`, with a zero-to-one and negative-to-zero normalization path. Its general role was **already reported** by `dev_lab/docs/PEER_SCRIPT01_FINDINGS_20261011.md` §§61/62.1: newly documented here is the exact producer-to-turn-loop call chain, not an independent discovery of `training_up`.
+- Native `0x47229E` calls already-named/inferred leader resolver `0x583DC0`. A null leader takes the base count; otherwise `0x4722BE` searches a stack-local tree through `0x4F8A80`. On a hit, node `+0x10` is added to the base count (`0x4722D0..0x4722D3`). This mapped integer is **not a second independently identified training skill**.
+- On a cache miss, the native branch scans the leader's skill array, tests kind `+0x40 == 6` and name `training`, reads its integer `+0x2B0` into bonus `B`, and computes `base + B` at `0x47238E`. Native `0x4723A8` calls `0x4ED3B0` to allocate and populate a 24-byte node from `(leader pointer, B)`; `0x4723BC` calls `0x474A80` for tree insertion. This leader-pointer-keyed memoization is the **new 07H crosswalk**, not a change to the previously recorded training formula.
+- Original-PE byte-window SHA256 readback: `0x595320..0x5953AD` = `EVID-0055`; `0x47230D..0x4723C1` = `EVID-0101`; `0x4ED3B0..0x4ED3EF` = `EVID-0170`. Capstone independently confirmed the key E8 sites, field loads and +0x2B0 access.
+- Source IDs: `B-20261031-06H-T011-TRAINING-COUNT-PROVENANCE-01` (`data/T011_TRAINING_COUNT_PROVENANCE_NATIVE_20261031_06H.md`) and correction `B-20261031-07H-T011-TRAINING-LEADER-BONUS-MEMO-01` (`data/T011_TRAINING_LEADER_BONUS_MEMO_NATIVE_20261031_07H.md`); owner `B/T011`. The 07H correction takes precedence over any 06H suggestion that node `+0x10` and Skill `+0x2B0` are semantically different effects.
+- State: original x86 **STATIC**; stack-local memo lifetime, duplicate-leader behavior, negative bonuses, overflow and realized in-game training remain **INFERRED/VERIFY**. Original-game Golden PASS **0**, strict MATCH **0**, no owner READY or MASTER promotion. The authorized 20x-modified DAT snapshot must never substitute for an unmodified original-DAT Golden fixture.
+
+
+## 6. T011 temporary leader-bonus map: lifetime and erase paths (08H-11H)
+- The prior 06H/07H results already identify producer-to-loop and a leader-keyed **bonus B** memo. Node+0x10 on a hit and Skill+0x2B0 on a miss are the same role; the 07H correction supersedes the 06H suggestion of two effects.
+- At 0x472091, native 0x49ED90 creates a 24-byte sentinel (self-linked left/parent/right, count=0) for a stack-local training map, not a proven across-turn cache. 0x4723BC calls generic insertion; a duplicate-key branch frees the incoming node, yet the current Unit still uses precomputed base+B.
+- Normal cleanup at 0x4726C1 calls 0x4DEF40 with [begin,head] and then 0x4726D9 frees the sentinel. The full-range branch calls 0x4ED030, which clears nodes through 0x49F6A0 and restores empty head/count.
+- The partial-range fallback separately calls 0x4DEC70 from 0x4DEFCF. Its node+0x15 sentinel gate has an invalid-iterator branch, then conditional node-free/count decrement. Ordinary full training cleanup does NOT necessarily execute this partial helper.
+- The 0x4DEF6A..0x4DEFDC partial loop saves current node, discovers a successor by right-subtree descent or ancestor walk, deletes old current through 0x4DEC70, then advances using the precomputed successor. Exact C++ type/ABI, malformed-tree behavior and exceptional exits remain VERIFY.
+- Independent original-PE SHA256 (end exclusive): 0x49ED90..0x49EE20 = EVID-0086; 0x4DEF40..0x4DEFE8 = EVID-0018; 0x4DEC70..0x4DEEE2 = EVID-0197; 0x4DEF6A..0x4DEFE5 = EVID-0046.
+- B/T011 research IDs and evidence paths: B-20261031-08H-T011-TRAINING-CACHE-LIFECYCLE-01 (data/T011_TRAINING_CACHE_INIT_ERASE_DUPLICATE_NATIVE_20261031_08H.md); B-20261031-09H-T011-TRAINING-CACHE-BULK-ERASE-NATIVE-01 (data/T011_TRAINING_CACHE_FULL_RANGE_ERASE_NATIVE_20261031_09H.md); B-20261031-10H-T011-TRAINING-PARTIAL-ERASE-NATIVE-01 (data/T011_TRAINING_PARTIAL_ERASE_NATIVE_20261031_10H.md); B-20261031-11H-T011-PARTIAL-RANGE-SUCCESSOR-PRESERVE-01 (data/T011_TRAINING_PARTIAL_RANGE_SUCCESSOR_PRESERVE_NATIVE_20261031_11H.md).
+- Scope: original ASM/E8 and bounded bytes STATIC, generic tree invariants INFERRED, training EXP effect/exception paths VERIFY. Original gameplay Golden PASS=0, strict MATCH=0, no owner READY promotion. Summon EXP transfer to persistent parent UnitData remains unresolved.
+
+## 7. B/T012 and B/T011 historical summon body / runtime constructor (2026-10-13) — curator-reviewed 2026-11-02
+- **Source lineage:** historical IDs `B-20261013-1134-01` (T012/T013; owner intake（原資料は非公開）, report `data/T012_SUMMON_CORE_54E7B0_CONTRACT_20261013.md`, original report SHA256 `EVID-0271`) and `B-20261013-1146-01` (T011/T012; owner intake（原資料は非公開）, report `data/T011_SUMMON_RUNTIME_UNIT_56F880_CONTRACT_20261013.md`, SHA256 `EVID-0091`). Both report SHAs were independently matched on authorized PC; source from existing owner Draft PR #18（非公開の旧出典）, pinned head `[非公開Gitオブジェクト参照]`, owner blob IDs `[非公開Gitオブジェクト参照]` and `[非公開Gitオブジェクト参照]`. This is not two new discoveries; both historical IDs were already PUBLISHED_INTAKE on the owner branch.
+- **Original native evidence:** independent unchanged-PE SHA256 `EVID-0283`. B1134 full `0x54E7B0..0x54F459` end-exclusive **3241B/871 x86 instructions**, SHA256 `EVID-0047`, **71** direct CALL and one local normal `0x54F458 ret`; B1146 `0x56F880..0x570C81` **5121B/1221 instructions**, SHA256 `EVID-0233`, **101** direct CALL and one local normal `0x570AE4 ret 0x18`. Both complete windows were independently redecoded after translating each PE VA through the actual .text section raw offset, **not** by subtracting the image base alone.
+- **B1134 CURATED_STATIC local facts:** `0x54E82A` compares `Skill+0x14C` and chooses direct-string versus candidate-vector path; zero-length vector goes to `0x54F435` cleanup. In the vector branch, `Skill+0x270` directs signed IDIV index versus the `0x54E886 E8→0x5B6EAB` direct CRT rand route. `0x54EE82 E8→0x577260` is the **already documented** keyed record lookup; `0x54F07A E8→0x56F880` and `0x54F096 E8→0x568710` show bounded handoffs to constructor/membership logic. Original return value, count of live summons and total RNG including child calls stay VERIFY. Source `B-20261013-1141-01` is duplicate-linked in §3, not a fresh lookup discovery.
+- **B1146 CURATED_STATIC local facts:** `0x56F8CF E8→0x56F6F0` passes a holder/owner input into base initialization, `0x56F8DD` writes candidate vtable `0x63A9E4`. Limited weapon/weapon2 consumer: `0x57027C` gives a unit typed lookup to `0x464290`; its local AL-true branch uses `0x627EB0` and `0x465060` while the AL-false branch uses `0x627EB8` and `0x465060` for class, **not a general property-inheritance rule**. At `0x570A9E`, `Unit+0x8D` is tested; zero chooses `owner+0x48` (at `0x570AA6`) and locally increments `owner+0x24` (at `0x570AAE`); nonzero chooses `owner+0x58` (at `0x570AB3`). `0x570ABB` returns the constructed Unit-like EBP pointer in EAX and `0x570AE4 ret 0x18` releases 24 stack bytes.
+- **Overlap/errata:** the `0x54F07A` constructor CALL and `0x577260` record lookup were already present in EXP crosswalk, `B-20261027-13H-T011-UNIT-HOLDER-CTOR-SUMMON-JOIN-01`, and the `Unit+0xC` holder flow in §3; do **not** count these edges twice. Earlier child and holder evidence does not prove owner roster persistence, correct external battle settlement, visible Unit spawn, total RNG, Skill property producer, full constructor ABI or all failure cleanups. `B-20261013-1110-01` ([post-action REF](REF_SKILL_POST_ACTION.md)) uses the constructor-zeroed notification fields later; do not indiscriminately clear them on every tick.
+- **Status and next gate:** CURATED_STATIC **only** for the specifically described original-native window/branch facts; all downstream callee consequences, original-game DYNAMIC, external-result G4, Golden PASS, strict MATCH and newly accepted READY remain **0/VERIFY**. Search via `kb.py addr 0x54E7B0`, `kb.py addr 0x56F880`, `kb.py docs`, `kb.py files --task T011`, `symbols.tsv` and the two owner IDs; no generated DB or raw EXE enters Git.
+
+## 8. T011/T012 next-order and karate exp_per: original-ASM/DAT bounded curation (2026-11-03)
+
+Source identity: unmodified research PE SHA256 `EVID-0283`, independently measured. Two existing B owner reports were source-SHA checked on the authorized PC. All facts here are `CURATED_STATIC` for bounded original x86 or declared DAT, not original gameplay/G4/Golden.
+
+### B-20261013-1951-01 — raw next_order and next_interval compile to different Skill offsets
+
+- Owner-sanitized original research（非公開の旧出典）, local relative report `data/T011_NEXT_ORDER_INTERVAL_NATIVE_20261013.md`, report SHA256 `EVID-0125`. Independently decoded native parser window `[0x59C368,0x59C42A)`, SHA256 `EVID-0109`.
+- Original PE string operands `0x624E2C='next_order'`, `0x624E28='on'`, `0x624E40='next_interval'`. `0x59C39B E8 -> 0x4647D0` gets the first property; `0x59C3B0 E8 -> 0x40B200` compares it to `on`; `0x59C3B5 MOV BYTE [EBP+0x270],AL` stores the resulting bool. Independently, `0x59C410 E8 -> 0x4647D0`, `0x59C415 MOV ECX,[EAX+0x20]`, `0x59C418 MOV DWORD [EBP+0x274],ECX` store the numeric interval. All three parser E8 sites were matched with V9 `native_callsite` (current V9, not an old V3 inference).
+- Pre-existing curated `B-20261013-1134-01` already covers candidate selection in `0x54E7B0`. Native `0x54E862` tests `Skill+0x270`; on the nonempty `Skill+0x158/+0x15C` vector path, a nonzero flag selects signed index/modulo; zero uses direct E8 `0x54E886 -> 0x5B6EAB` rand. Rechecked native window `[0x54E83E,0x54E8A4)` SHA256 `EVID-0211`. This prior consumer is **linked, not recounted**. The direct-key/empty-vector branches, effective interval time unit and complete RNG behavior remain distinct or VERIFY.
+- The original normalized source `F10_missile.dat` (SHA256 `EVID-0149`) declares `next_order = on` at line 311. This is a source declaration, not proof of its dynamic caller, full inherited configuration, or game outcome.
+
+### B-20261014-1517-01 — karate root and child have different direct exp_per declarations
+
+- Owner-sanitized original research（非公開の旧出典）, local report `data/T012_KARATE_ROOT_CHILD_EXPPER_SPLIT_20261014.md`, SHA256 `EVID-0012`. Original normalized copy `data/normalized/hakushin067_core/a_default/script/30_スキル/F11_sword.dat` independently re-hashed, SHA256 `EVID-0044` (6,562 lines). No raw DAT was pushed.
+- Two roots directly declare `exp_per = off` at L1136/L1199. The next3 chain at L1212/L1218 reaches direct child `sw_karate_js`, which declares `exp_per = 65` at L1241 (also `collision = none` and `damage = -3`). Its two derived child declarations do not explicitly contain `exp_per`; inheritance and actual runtime use **VERIFY**. The graph was already described by `B-20261014-1017-01` and is **not a new graph discovery**.
+- Original PE parser `[0x59BDC8,0x59BEA0)` independently decoded, SHA256 `EVID-0223`. Literal `off` at `0x624D00` is compared by `0x59BDF2 E8 -> 0x40B200`; the true path loads the PE double constant `-123456.0` at `0x59BDFB` and writes compiled `Skill+0x2A8` at `0x59BE05`. The numeric path at `0x59BE4D/50/56` converts its integer by the PE double constant `0.01` before writing the same field. This is a conditional parser/source crosswalk; **do not assign an effective EXP rate to every derived child** without its actual compiled Skill pointer and hit path.
+- The known `0x551E50` EXP-related consumer and earlier generic exp_per parser sources are antecedents, not newly validated full gameplay. Child collision, actual EXP, legal hit, next RNG and battle settlement remain VERIFY.
+
+**Curation boundary and search:** The new curated meaning is two source-backed compiler/field facts and the observed root/child raw declaration difference. Do not count prior `0x54E7B0` selector, the child graph or generic exp_per helper again. New symbol anchors `0x59C3B5`/`0x59C418` are code sites, **not new function entrypoints**. Search `kb.py addr 0x59C3B5`, `addr 0x59C418`, `docs 0x59BE05`, `find next_order`, and `files --task T011/T012`, then follow the original report SHA and pinned owner source links above. No original-game Golden PASS, strict MATCH, new READY or G4 external-result commit.
+
+### Related source: Skill super-parent ScriptData compiler
+
+For the original x86 bounded super-parent producer/getter and brace-return corrections, see [REF_DAT_BEHAVIOR.md](REF_DAT_BEHAVIOR.md), ScriptData super ancestry section. Six B 2026-10-24/25 IDs are source-linked there. This does not establish effective runtime inheritance of a child Skill, any EXP transfer or external G4 settlement.
+
+## 9. Summon parent/child link, EXP write site and a give-EXP contract (Claude PEER_SCRIPT01, 2026-11-03)
+
+Source: `dev_lab/docs/PEER_SCRIPT01_FINDINGS_20261011.md` §96 (Japanese, full detail). Original PE SHA256 `EVID-0283` decoded directly with Capstone (`dev_lab/_work/summon_exp_20261103/`). Everything here is **STATIC**; original-game DYNAMIC, Golden PASS and strict MATCH remain 0. The legacy refused range 0x5710C0..0x571500 was not analysed.
+
+- **Parent -> children:** parent BattleUnit `+0x178/+0x17C/+0x180` is a `std::vector<BattleUnit*>` of summoned children. The only appender is `0x5774A0(parent, child)` (stdcall, `ret 8`), which also overwrites child `+0x1E594` with parent only when that field is already nonzero. Exactly three E8 callers, each right after a summon spawn: `0x54F245` (normal summon `0x54E7B0`, child from `0x56F880`), `0x5479F0` (simple-battle summon `0x547490`, child from `0x544290`), `0x5537BF` (simple-battle missile summon `0x553390`). No writer shrinks `+0x17C`; dead children stay in the vector and are told apart by child `+0x1867C`. Earlier note: dev_lab story ON-STAND-010 already identified the vector, `0x5774A0`, `0x575A60` and `0x5445E0`; the new part is the complete caller set, the absence of removal and the absence of a reverse pointer.
+- **Child -> parent:** no general back pointer. `+0x1E594` is the satellite follow target (`0x571B70`; read by `0x57A9E0`, `0x57D1D0`) and points to the parent only for followers. `+0x1D4`/`+0x1D8` are copied from the parent; `+0xC` is the propagated holder (§3). A DLL that needs child->parent should hook `0x5774A0` (first 5 bytes `53 8B 5C 24 0C` end on an instruction boundary) or scan parents' vectors.
+- **Summon cap:** parent `+0x168` is compared with the vector size in `0x57F190`, `0x577600`, `0x577EE0` (when `Skill+0x4C==0`). Because the vector never shrinks, dead children appear to count. INFERRED, VERIFY.
+- **Parent defeat:** normal vtable `0x63A9E4`+0x58 = `0x575A60`, simple vtable `0x63A4BC`+0x58 = `0x5445E0`; set `+0x1867C` once, then for each live child check its `element_lost` and call the child's vtable+0x58. `0x575A60` then removes itself from a coordinate bucket list (`0x575CAC -> 0x4BC3C0`), not from the side's `+0x48` unit vector.
+- **EXP write:** `0x551FB2 add [edi+0x16C], edx` (bytes `01 97 6C 01 00 00`) inside `0x551E50`; EDI = destination UnitData (= actor `+0x1C8`), EDX = amount, ESI = context (`[esi]` = actor). Early exits: `Skill+0x2A8 == -123456.0` (exp_per=off, constant `0x63B290`), actor `+0x1D0 == 0`, actor `+0x18614 != 0`, context `+0xC != 0`.
+- **Summoned child EXP:** goes to the child's own record R (parent-owned tree `+0x1E4B8`), never to the parent's UnitData; and only when the child has a troop (`yorozu=troop*`; never for simple-battle summons). No end-of-battle transfer R -> parent is known (unchanged from §4).
+- **Level-up:** `0x58A650` (`ECX` = UnitData, no stack args) loops while EXP >= `+0x170` up to level_max. SimpleUnit (`+0x8C != 0`) checks immediately after the add (`0x551FBA..0x551FD3`); normal units are settled at battle end by `0x575110`, called for every entry of side `+0x48` by `0x514C50`/`0x5200A0` without a `+0x1867C` check (whether defeated units and summons remain in that vector is VERIFY). Strategy-side training writes EXP = threshold then calls `0x58A650` (`0x4723D0..0x4723DE`).
+- **Give-EXP contract (design, not implemented):** in battle, `ud = unit+0x1C8`; `ud+0x16C += n` (saturate at `0xFFFFFFFF` in a DLL; original has no overflow guard); if `unit+0x8C != 0` and EXP >= threshold, call `0x58A650(ECX=ud)`; otherwise leave it to `0x575110`. To mirror original gating, skip units with `+0x1D0 == 0` or `+0x18614 != 0`. Outside battle: add, then `0x58A650` if EXP >= threshold. Do not call `0x551E50` directly (context, rate, minimum 10 and duplicate guard).
+- **Child-to-parent share skill (design):** hook `0x551FB2`, look the actor up in a child->parent table built from `0x5774A0`, and give `floor(EDX * rate)` to the parent with the contract above. Troopless children never reach `0x551FB2`, so sharing for them needs a separate calculation at the `0x551E50` entry. Grandchildren's parents also hold an R. Clear the table per battle.
+- **Runtime check prepared:** log-only x32dbg script `dev_lab/_work/summon_exp_20261103/x32dbg_summon_exp_trace_20261103.txt` (bpcond 0 at `0x5774A0`, `0x551E72`, `0x551FB2`, `0x575A60`, `0x575110`; module base + RVA). NOT RUN.
+
+### 9.1 Original-game runtime log (2026-11-03 09:31 JST, log-only x32dbg, ACTUAL)
+- Source: `dev_lab/_work/summon_exp_20261103/trace_20261103_0931.log` and PEER_SCRIPT01 findings §96.6. Normal battle (`+0x8C=0`); one summoner (lv1, has troop) used the same summon 12 times; module base 0x00DA0000.
+- `0x5774A0` fired once per summon with the same parent; child count went 0 -> 11. No child died in this run, so "the vector never shrinks" is still only STATIC.
+- All 12 children had troop `+0x1D0 = 0` and `+0x1E594 = 0`, and **all shared one record R** (same `+0x1C8`): ACTUAL confirmation of the same-parent/same-key reuse.
+- Children reached the `0x551E50` gate 1,459 times, always with troop 0, and **never reached `0x551FB2`**: troopless summons earn 0 EXP. The only 12 adds were the summoner's own cast EXP (+10 each, the minimum).
+- `0x575110` ran at battle end for the summoner and the 12 summons (children then fail its troop condition). Correction (2026-11-03): the 11 lv10 units whose `0x575A60` fired did so at the very start of every run, before any attack, so they were not defeated in combat (probably undeployed units being cleared; VERIFY). Units really defeated in combat (the lv5 enemy in run 2, JOKER in run 3) also reach `0x575110`.
+- Consequence for a child-to-parent share skill: for troopless summons the hook at `0x551FB2` never fires; the would-be amount has to be computed at the `0x551E50` entry.
+- Second run (09:46, `trace_20261103_0946.log`, findings §96.7): same pattern (12 troopless summons sharing one R, 805 child attack attempts, 0 adds). Summoning stopped at exactly 12 in both runs (cap `+0x168` = 12 suspected, VERIFY). Two children were defeated after the last summon, so vector shrink is still untested; defeated children still reached `0x575110`.
+- A friendly troop unit with UnitData threshold `+0x170 = 0` earned 2275 EXP at lv5, was defeated, and arrived at `0x575110` as **lv100 with EXP 0**: with a zero threshold some post-defeat path ran the level-up loop to the cap. The responsible writer (death path near `0x588D77` or a `0x58A650`-type loop) is VERIFY, and the zero threshold came from the **test DAT**: the user had written `exp = 0` (DAT `exp` is the base required EXP, not current EXP) on the test summoner and enemy; not an original-DAT behavior (user-confirmed 2026-11-03, `dev_lab/_work/summon_exp_20261103/SUMMON_EXP_LV100_ROOT_CAUSE_20261103.md`). The enemy was already lv100 at `0x575110` entry, so its jump happened between defeat and settle; the summoner was still lv1 there. The summon cap of 12 is that test unit's setting.
+- Third run (10:13, `trace_20261103_1013.log`, findings §96.8): JOKER "JOCAR発進！！" (self-hit `sp_jocar_dmg` + `func=summon add=jocar summon_level=100 yorozu=troop3`). The car child had a troop and **its 648 hits all added EXP (400,950 total) to the car's own R**, none to JOKER's UnitData. JOKER (parent, alive at link time) was then defeated: its EXP went 107,286 -> 101,922 (= x0.95 dead_penalty) and lv25 -> 26 at defeat, and it still received +8,250 after defeat. At settle the car's R was over threshold but R is discarded, so EXP earned while transformed is lost. A share skill hooked at `0x551FB2` works for troop summons; for chains such as JOKER -> car -> joker_re it should climb to the top parent's real UnitData.
+
+## 10. Battle-time DAT bridge facts found while building HakushinExp (Claude PEER_SCRIPT01, 2026-11-03)
+
+Sources: `dev_lab/_work/summon_exp_20261103/EXP_DAT_DESIGN_20261103.md` (Japanese, runtime records 1-5), logs in the same folder, HakushinExtensions main c3728c5 (`docs/EXP_PLUGIN.md`, `docs/DAT_ROUTINE_BUS.md`). STATIC = original x86 read with Capstone; ACTUAL = original game with log-only x32dbg breakpoints or the HakushinExp/DAT-routine-bus plugins.
+- **Unit name -> BattleUnit (STATIC + ACTUAL):** `0x49E780` is `__fastcall` (ECX = NUL-terminated name, EDX = evaluator) returning the BattleUnit in EAX; it walks a multimap at **evaluator+0x1EEBEC** (evaluator = script context + 0x504; context = GameManager VA 0x8BE2F0) and returns the first living unit (`+0x1867C == 0`), else the first gone one. 19 call sites (isDead 600 / getDistance 605 / getLife 608 in `0x44F470`, command executor `0x4A1250`, `0x4A7A90`, `0x4B4710` incl. skillTroop, `0x56AB20`). Insert `0x49E560` from both unit constructors (`0x56F880`, `0x544290`), keyed by UnitData+0x1C, so summons are findable by name; clear `0x48ABF0` (callers `0x40D1E4/0x40E2C3/0x40F362/0x48AAEC`). x32dbg showed EDX = evaluator 0x0125E7F4 (base 0xDA0000); a live read-only peek showed size 0 outside battle at evaluator+0x1EEBEC, while context+0x1EEBEC holds unrelated data (an earlier wrong reading).
+- **DAT command entries (ACTUAL):** `0x4A1250` (ECX = evaluator, 1 stack arg, ret 4) has three E8 callers. Outside battle commands go through `0x433B62` (function 0x4338D0). **In battle, battleEvent ticks and dead_event go through `0x49356A`** (function 0x493300); `0x433754` was not seen. dead_event runs at the moment of death, not after the battle. The evaluator value is the same in and out of battle.
+- **DAT variables (ACTUAL via the plugins):** numbers map at context+0x4C4 (value record+0x1C, int32); string arrays at context+0x1E8B40 (vector<std::string>, nil +0x39), `@name` stored without '@'. Ordered-tree lookups (std::less<string>) work; a DAT routine call with ~6 variable lookups costs ~0.65 ms via ReadProcessMemory.
+- **EXP observation and transfer (ACTUAL):** redirecting the four E8 calls to `0x551E50` and diffing UnitData+0x16C gives each change; adding EXP to a **gone** unit's UnitData is kept and settled by `0x575110` at battle end (JOKER after its self-kill transform: +433,620 and +440,055 in two battles, level-up seen in game). Normal battle cost of the hook: 18 us average per EXP change (714 changes).
+- **Startup trap (ACTUAL):** if any script DAT is held open by another process (here a Desktop Commander content search left `a_default/script/10_ユニット/17_遠野の世界.dat` open), Vahren.exe shows the loading screen and exits with code 0 after ~1.5 s, before the plugin loader logs anything. Not a corrupt install; release the handle (`dev_lab/_work/summon_exp_20261103/STARTUP_LOCK_ROOT_CAUSE_20261103.md`).
+- **DAT text (ACTUAL):** a DAT rewritten with LF line endings gives a syntax error at load; keep Shift_JIS + CRLF.
+- **Troopless summons can earn with the original formula (STATIC + ACTUAL 2026-11-03 22:40):** inside `0x551E50` the only use of BattleUnit+0x1D0 is the non-null gate at `0x551E74`; none of its callees (0x5B6ED0, 0x5D1B80 math, 0x58A650 level-up on UnitData, 0x571A40 reads +0x8C/+0x1F8, 0x4E13F0 sound, holder vtable+0x24 "levelup" event) read it. Lending a dummy non-null troop for that single call (and restoring 0 right after) made 12 troopless `inyume` summons produce 2,216 normal EXP adds (2,070,585 total) that a rule passed to their summoner; no crash or side effect seen. HakushinExp op 32.
+- **Summoning skill per child (STATIC + ACTUAL 2026-11-03 22:55):** the normal-battle summon `0x54E7B0` (fastcall, EDX = compiled skill) stores the skill at `[esp+0x44]` right after its prologue (`0x54E802`) and keeps it there; at the link call `0x54F245 -> 0x5774A0(parent, child)` the skill is at the callee's `[esp+0x50]`. The compiled skill starts with its key as an MSVC std::string (+0x00): in game the car read `sp_jocar_nt2` and twelve summons read `s_inyume`. Simple-battle summon links (`0x5479F0`, `0x5537BF`) not yet covered.
+
+## 11. Attack/status events, unit vanish and simple-battle summon links (Claude PEER_SCRIPT01, 2026-11-04)
+
+Sources: `dev_lab/_work/summon_exp_20261103/EXP_DAT_DESIGN_20261103.md` (runtime records 8-11), HakushinExtensions main (`core/hakushin_exp_plugin.c`, `docs/HAKUSHIN_EXP_README.md`, release exp-v1.1). STATIC = original x86 read with Capstone; ACTUAL = in game through the HakushinExp plugin.
+- **Per-hit damage event (STATIC + ACTUAL):** in the damage core `0x550E70` (6 callers: SimpleUnit 0x546B53/0x546DDF/0x547F60, missile hit 0x54DAFE, unit melee 0x57E43A/0x57E7E0) the final damage incl. distance falloff is in EDI (`0x5510DB`); the victim's vtable+0x70 is called with a separately adjusted HP value (0 when Skill+0x280 is 0.0, 1,000,000 for mode 0, boss scaling with victim+0x1867E, min clamp `[0x65BDA4]`), then `0x551167 call 0x551E50(victim, damage, victim UnitData+0x178)` with EAX = context (attacker = [ctx], skill = [ctx+8]). The EXP formula divides arg1 by arg2 (damage / max HP). The call happens for every hit, also when the skill has `exp_per=off` or the attacker has no troop (gates are inside 0x551E50); mode 10 passes damage 0.
+- **Per-target status-skill event (STATIC + ACTUAL):** `0x551490` (thiscall ECX = context, arg = receiver; callers 0x5461FF, 0x547CE8/0x547D46, 0x54E317, 0x54E4A3/0x54E595, 0x5531DB) applies a status skill (probability Skill+0x230, status list Skill+0x158) to one receiver and ends with `0x551C6A call 0x551E50(receiver, amount, …)`. In game the support skill 士気向上（攻撃） arrived under its own key `sp_attack` (not a child skill); 整列, 歌唱 and a negative-amount debuff (karaage_at3) also arrived here. Distinguishing the two callers by return address (0x55116C / 0x551C6F) gives attacker/victim/amount/skill for every hit and every buff without new patches.
+- **Unit vanish = vtable+0x58 (STATIC + ACTUAL):** the original battle command `removeTroop` (`0x4B4710` case 4, string xref 0x4B4DAC) resolves names through `0x49E8B0` and calls each unit's vtable+0x58 (thiscall, no args) directly from DAT command context, like element_lost in `0x575A60`. HakushinExp does the same for summoned children selected by summoning skill (only for the two BattleUnit vtables 0x63A9E4 / 0x63A4BC): 105 units removed in normal and simple battles with no crash or visual glitch; the units count as defeated (their dead_event/break run). DAT also has `eraseSkill`/`removeSkill`/`addSkill2`/`storeSkillOfUnit` for skill stealing.
+- **Simple-battle summon links (STATIC + ACTUAL):** `0x547490` (thiscall ECX = skill, arg = summoner) keeps the skill at `[esp+0x18]` and links at `0x5479F0 -> 0x5774A0` (callee `[esp+0x24]`); `0x553390` (ECX = skill, arg = missile; parent = missile+0x78) keeps it at `[esp+0x2c]` and links at `0x5537BF` (callee `[esp+0x38]`). In game: s_inyume 12, s_iwana_nt 130/235, sp_abesan_nt2, sp_skrn_nt2 recorded in simple battles. The recorded key is the skill that actually summons (for a missile chain, the missile-side skill, e.g. `abesan_yari1_pr1b`).
+- **Simple battles run battleEvent (ACTUAL):** DAT routine calls from battleEvent reached the plugin in CPU-vs-CPU simple battles; the troopless dummy-troop loan also works there (inyume simple=1 gains).
+- **Cost (ACTUAL):** per EXP change 2.9-3.1 us average over 4k-32k changes; per DAT routine call 0.28-0.35 ms.
+
+
+## 12. 0x587CC0：キャッシュ返却と確認済みの集計経路（2026-11-05 訂正）
+
+`Unit_CachedValueOrAggregate` は確認済みの分岐を表す調査用名。旧名 `Unit_ResetLinkedRuntimeFlags` と「参照元の状態を変更する」という旧説明は、後日のT011§17・300–308行（原資料は非公開）の範囲へ限定し直す。対象は迫真戦記ver0.67、VA 0x587CC0。
+
+- 保存済み静的報告の302行：stack byte引数が0なら、Unit+0x1C4のキャッシュをEAXへ読み、ret 4で返す。
+- 303–304行：非0経路では複数フィールドと要素列から重み付きの入力集計へ進むが、取得済みなのは先頭110命令の途中まで。非0経路の最終EAX、関数内部の+0x1C4書込、全体の副作用は未証明。一律のstat resetやbuff消去を証明するものではない。
+- 293行と304行：状態setter側のcallerは返却EAXをUnit+0x1C4へ保存する。callerのstoreをcallee自身のstoreと混同しない。戦闘生成callerと後段0x571B70も区別する。
+
+出典は固定保存版 `research/recovered/principal_models1/reports/data/T011_DATA_MODEL.md`、SHA256 `EVID-0192`、主根拠300–308行、callerの補助根拠293行。[関数ページ](reference/symbols/00587CC0.md)と訂正履歴（原資料は非公開）の `CORRECTION-UNIT-CACHED-VALUE-NOT-RESET` から辿れる。静的区分は元報告の範囲を維持し、今回の原作再解析・実機確認はない。
+
+未取得の後半は取得し直していない。Unitの具体型・UnitRuntimeとの同一性、キャッシュの論理用途、戦闘跨ぎのbuff寿命、完全なABI・副作用は未確認のまま。新しいフィールド型やcalleeのwrite関係は採録しない。
+
+
+### 別の実装報告との相違・確認範囲
+
+F§64.2・1671–1678行（原資料は非公開）は「実装した関数」の `unit_strength_587cc0` を説明し、fv_*係数の各積をchopしてdef+0x1C4へ格納すると記述する。F§75・2702–2708行（原資料は非公開）にも引数1の返値を使う評価式がある。固定保存版FのSHA256は `EVID-0180`。これは参照すべき実装・静的対応の著者報告として残す。
+
+ただし、この実装説明の引用箇所は原作calleeの完全な命令列・内部store位置を提示していない。節固有の観測日時も不明で、文書題名の日付だけでT011との新旧を決めない。「内部書込未証明」はT011§17の限定取得範囲に対する記録であり、すべての研究に格納報告が存在しないという主張ではない。Fのstrengthという命名・式・格納と、原作callee/callerの帰属・完全な返値・副作用は未照合。今回、その報告を新しいwrite関係や確定用途へ自動採用せず、保留された後半も取得しない。
+
+## 同じnode+0x28でも保存形式を分ける
+
+保存済みEXP save/cache境界の証拠票（原資料は非公開）26–29/50–53/74–78行（SHA256 `EVID-0252`）は、2つの木の保存形式を明示的に分けている。
+
+| 研究用の部分レイアウト | +0x28の役割 | 既存関数との関係 |
+|---|---|---|
+| [SaveUnitDataTreeNode](reference/structs/SaveUnitDataTreeNode.md) | UnitDataへのポインタを格納 | 0x460000がowner+0x300の木のノードからポインタ値を読む |
+| [SummonRecordCacheNode](reference/structs/SummonRecordCacheNode.md) | 埋め込み記録の先頭。欄の宣言型はunknown | 0x577260がowner+0x1E4B4のcacheから見つけた記録のアドレスを返す |
+
+同じ数値のオフセットを型同一性・同じ間接参照段数の証明にしない。cacheの468Bという大きさは別の構造導出（原資料は非公開）358–369行（SHA256 `EVID-0183`）の限定された著者報告であり、完全なC++宣言型や実行時動作を確定しない。keyやowner全体の型・別場面の同一性は追加採録していない。
+
+元報告の静的・未実行・VERIFYの区分を保つ。全save経路が同じwriterを使うこと、召喚EXPがsave以前に移されないこと、全間接CALLを網羅したことは証明していない。正式レイアウトへの部分採録と、実機確認・ゲーム結果の保証を分ける。
+
+
+## 制作時の注意：実HP変化と経験値の入力を分ける
+
+保存済みEXP研究 CP22–CP24（原資料は非公開）は、攻撃・回復・複数項目回復の入力を区別しています。攻撃0x550E70の確認経路では、HP用補正値とは別に保持した計算値を0x551167から渡します。実際に減ったHPだけで経験値を求め直しません。分母はHP処理から戻った後のUnitData+0x178読み出しです。
+
+回復0x551490も、上限まで実際に回復できた量に差し替えず、元の計算量を0x551C6Aから渡します。heal(kind3)は共通helper0x551E50で固定2%の枝を選ぶため、回復量への単純比例ではありません。add_all経路で同じcontextを使い続け、外部resetがなければ、context+0xCのgateにより項目数ぶん再加算されません。全弾・全対象で1回という一般化や、満タンへの発動・経験値稼ぎの成立は未確認です。
+
+これは保存済み著者の局所静的報告を事典へ反映したものです。今回の原作再解析・合成コード実行・実機再検証はありません。古い研究の未解決事項と後日の実機報告は、それぞれ対象と確認範囲を保って読みます。
+
+## 13. Writing DAT arrays from native code, kills, sides, and testing facts (Claude PEER_SCRIPT01, 2026-11-04/05)
+
+Sources: `dev_lab/_work/summon_exp_20261103/EXP_DAT_DESIGN_20261103.md` (runtime records 12-15), HakushinExtensions main (`core/hakushin_exp_dat.h`, `docs/HAKUSHIN_EXP_README.md`, release exp-v1.2).
+- **DAT string arrays are vector<std::string> built by two original helpers (STATIC + ACTUAL):** setv/addv (`0x4AE0F0` variable-command dispatcher, op36 at 0x4AFFD2 / op37 at 0x4B0100) build a local vector with `0x415530` (push_back; custom ABI: ECX = source std::string, EDI = vector; copies with the game CRT) and free it with `0x4154F0` (ECX = vector: destroy strings, free buffer, zero the three pointers), then erase+insert the map entry (`0x49EC50`, `0x49F730`, `0x49FE30`, `0x49F7D0`). The arrays map is at evaluator+0x1E863C = context+0x1E8B40. Emptying an EXISTING array's vector (map node +0x28) with 0x4154F0 and refilling it with 0x415530 (source = a unit's own UnitData+0x1C name, or a std::string image in plugin memory) is safe from the DAT routine bus: 85 writes matched an immediate read-back, and DAT read the result with `countVar` and `storeIndexVar` (ACTUAL 2026-11-04).
+- **Kill = the hit after which the victim's +0x1867C is set (ACTUAL):** at the damage-core call 0x551167 -> 0x551E50 the victim's gone flag is already set by the killing hit (victim vtable+0x70 runs before). Detecting the first such hit per victim identified the killer (JOKER's car `ch1_nt` killing a Lv3 test infantry, 2026-11-05).
+- **Sides:** BattleUnit+0x1D4 compared between units separates allies and enemies (a rule restricted to the other side of the test summoner hit only the enemy, 546 times).
+- **Testing facts (ACTUAL):** loading a save uses the unit stats and skills stored in the save, so DAT edits to units take effect only in a new game; for a unit with a class, the class `skill` was used even after changing the unit's own `skill`; a unit `hp = 500000` did not cap the in-battle HP at 500,000 (JOKER survived 999,999 damage), so `hp` is not the final maximum.
+- **Hit records:** queuing (actor, victim, amount, skill) from the damage/status events and draining them in battleEvent (`hk_exp_pending` written into an existing numeric DAT cell) let DAT react to hits without running script inside the damage core; vanishing the recorded victim's summons by pointer removed exactly the attacked summoner's children (ACTUAL 2026-11-04).
+
+現在版の著者原報告209行（原資料は非公開）を保存した。runtime12/13は旧版と同一、runtime14/15（198–209行）は今回追加回収。上記ACTUALは著者の日時・試験条件に限定した観測であり、全ユニット・全入力・全ABIの安全性を保証しない。今回のnative再解析・ログ/DLL実行・実機再試験はない。
+
+根拠の区分：primary185行は2つのvector helperを使った85回の書込成功を報告する。ECX/EDI・解放/3ポインタ零化という内部契約、および+0x1D4/+0x1867Cの具体offsetは上のREF著者STATIC説明に依存し、このprimary追記だけで全ABI・offsetを新たに実測したとは扱わない。
