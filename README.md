@@ -64,6 +64,10 @@ python -B -m unittest discover -s tests -v
 
 [公開出典IDの説明](EVIDENCE_REFERENCES.md)
 
+## セキュリティと非公開報告
+
+トークン・個人情報・公開してはいけない研究資料を見つけた場合は、公開Issueに貼らず、[SECURITY.md](SECURITY.md)に記載した**非公開の脆弱性報告**を利用してください。GitHubのSecret Scanning・Push Protectionに加えて、Gitleaksと公開対象ファイルの検査を自動実行します。
+
 ## 自動テスト（GitHub Actions）
 
 Pull Requestと`main`への変更のたびに、[Research CI](.github/workflows/research-ci.yml)でPythonテスト、辞書・CALLの整合性、生成ページの差分、検索CLIを自動検査します。結果は[Actionsタブ](https://github.com/Vahren-exe-Research-Lab/Vahren.exe-research-open/actions/workflows/research-ci.yml)から確認できます。検査の合格は、研究内容そのものの実機検証や権利関係の保証ではありません。

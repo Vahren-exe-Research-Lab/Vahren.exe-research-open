@@ -8,6 +8,7 @@ on:
       - "REF_*.md"
       - "reference/**"
       - "CONTRIBUTING.md"
+      - "SECURITY.md"
       - "RELEASE_NOTES.md"
       - "SCOPE_AND_LIMITATIONS.md"
       - "EVIDENCE_REFERENCES.md"

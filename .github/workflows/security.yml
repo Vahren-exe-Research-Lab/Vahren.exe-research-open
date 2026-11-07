@@ -1,0 +1,54 @@
+name: Security and privacy
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '17 1 * * 1' # Monday 10:17 JST
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    name: Security and privacy checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out complete repository history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+
+      - name: Check public-only sources and raw provenance fingerprints
+        run: python -B tools/check_publication_safety.py
+
+      # The Gitleaks GitHub Action requires an additional license for organizations.
+      # Its open-source CLI can be run directly without a separate service.
+      # Verify the downloaded release SHA-256 before running untrusted binaries.
+      - name: Install verified Gitleaks CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz"
+          archive="$RUNNER_TEMP/gitleaks_8.30.1_linux_x64.tar.gz"
+          curl --fail --location --silent --show-error --retry 3 "$url" --output "$archive"
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $archive" | sha256sum --check --status
+          mkdir -p "$RUNNER_TEMP/gitleaks-bin"
+          tar -xzf "$archive" -C "$RUNNER_TEMP/gitleaks-bin" gitleaks
+          echo "$RUNNER_TEMP/gitleaks-bin" >> "$GITHUB_PATH"
+
+      - name: Scan all Git history for credentials
+        run: gitleaks git --no-banner --redact=100 --log-opts="--all" .
+
+      - name: Scan the working directory for credentials
+        run: gitleaks dir --no-banner --redact=100 .

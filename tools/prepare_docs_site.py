@@ -12,7 +12,7 @@ DEST = ROOT / "docs_generated"
 REPORTS = sorted(ROOT.glob("REF_*.md"))
 assert len(REPORTS) == 15, f"Unexpected report count: {len(REPORTS)}"
 SOURCES = [
-    ROOT / "README.md", ROOT / "CONTRIBUTING.md",
+    ROOT / "README.md", ROOT / "CONTRIBUTING.md", ROOT / "SECURITY.md",
     ROOT / "EVIDENCE_REFERENCES.md", ROOT / "RELEASE_NOTES.md",
     ROOT / "SCOPE_AND_LIMITATIONS.md", ROOT / "symbols.tsv",
     ROOT / "structs.tsv", ROOT / "LICENSE",
