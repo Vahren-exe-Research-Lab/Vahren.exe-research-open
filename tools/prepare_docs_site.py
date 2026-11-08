@@ -10,6 +10,7 @@ import shutil, sys
 ROOT = Path(__file__).resolve().parent.parent
 DEST = ROOT / "docs_generated"
 REPORTS = sorted(ROOT.glob("REF_*.md"))
+GUIDES = sorted((ROOT / "guides").glob("*.md"))
 # Research topics are intentionally open-ended: newly added REF_*.md files
 # must be published without requiring a maintainer to update a fixed count.
 SOURCES = [
@@ -22,7 +23,7 @@ SOURCES = [
     ROOT / "reference" / "static_calls.tsv",
     ROOT / "reference" / "relations.jsonl",
     ROOT / "reference" / "corrections.jsonl",
-] + REPORTS + sorted((ROOT / "reference" / "symbols").glob("*.md")) + sorted(
+] + REPORTS + GUIDES + sorted((ROOT / "reference" / "symbols").glob("*.md")) + sorted(
     (ROOT / "reference" / "structs").glob("*.md")
 )
 if len(set(SOURCES)) != len(SOURCES):
@@ -41,53 +42,7 @@ for path in SOURCES:
     to = DEST / relative
     to.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(path, to)
-home = """# Vahren.exe 解析・拡張研究
-
-迫真戦記 ver0.67 / Vahren.exe の関数・メモリ・戦闘・DATなどを調べる、非公式の研究資料です。
-
-<div class="grid cards" markdown>
-
--   :material-magnify: __関数・アドレス事典__
-
-    510のアドレス項目（370関数）と14種類の構造体をブラウザで検索できます。
-
-    [研究事典を開く](reference/README.md)
-
--   :material-book-open-variant: __分野別研究__
-
-    戦闘乗っ取り、召喚、経験値、DAT、保存形式、AI、Oggなど15分野の研究報告。
-
-    [研究の目次を見る](README.md)
-
--   :material-source-pull: __共同研究への参加__
-
-    根拠、確度、対象バージョン、訂正の仕方を案内しています。
-
-    [参加ガイド](CONTRIBUTING.md)
-
--   :material-shield-check: __資料の安全性・権利__
-
-    原作ゲーム素材や非公開の研究履歴を含みません。CC0は公開者自身の権利部分に限定されます。
-
-    [利用範囲](SCOPE_AND_LIMITATIONS.md)
-
-</div>
-
-## 主な研究資料
-
-- [戦闘の差し替え・入口と出口](REF_BATTLE_TAKEOVER.md)
-- [戦闘AI・士気](REF_BATTLE_AI_MORALE.md)
-- [経験値・召喚](REF_UNIT_EXP_SUMMON.md)
-- [DAT実行系](REF_DAT_BEHAVIOR.md)
-- [Ogg/Vorbis音声](REF_AUDIO_VORBIS.md)
-- [静的CALL索引をTSVで取得](reference/static_calls.tsv)
-
-## 注意
-
-STATIC・VERIFYなどの確度は明確に区別してください。ここにある記録は、
-ゲーム実機での正常動作や研究の完全性を保証するものではありません。
-非公開の原資料を表すEVID参照は[こちら](EVIDENCE_REFERENCES.md)をご覧ください。
-"""
+home = (ROOT / "HOME.md").read_text(encoding="utf-8")
 (DEST / "index.md").write_text(home, encoding="utf-8", newline="\n")
 # MkDocs reserves index.md for the homepage and suppresses README.md alongside it.
 # Keep the full public README as GUIDE.md and preserve working local cross-links.

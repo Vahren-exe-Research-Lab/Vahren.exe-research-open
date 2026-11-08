@@ -49,6 +49,13 @@ markdown_extensions:
 
 nav:
   - ホーム: index.md
+  - 初めての方へ:
+      - この研究について: guides/getting-started.md
+      - 目的から探す: guides/by-goal.md
+      - 用語のやさしい説明: guides/glossary.md
+      - 書き込み・訂正: guides/contributing.md
+      - 研究の読み方: guides/reading-research.md
+      - 最初の調べもの: guides/first-lookup.md
   - 研究ガイド: GUIDE.md
   - 関数・アドレス事典: reference/README.md
   - 分野別研究:
