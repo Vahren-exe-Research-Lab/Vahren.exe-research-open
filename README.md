@@ -53,13 +53,14 @@ GitHubの仕様上、**リポジトリ本体への直接pushは書き込み権�
 | [直接CALL索引](reference/static_calls.tsv) | V9静的索引から選別した**2,373件**。間接CALLは対象外 |
 | [関数定義TSV](symbols.tsv) / [構造体定義TSV](structs.tsv) | 元の研究辞書を機械可読な形で保存 |
 | [関係記録](reference/relations.jsonl) / [訂正記録](reference/corrections.jsonl) | **165関係・17訂正**。非公開の証拠原本へのパス・個人情報は除外 |
-| [分野別の研究まとめ](#分野別の研究) | **15文書**。既知事項、未確認部分、過去の訂正を整理 |
+| [分野別の研究まとめ](#分野別の研究) | **16文書**。既知事項、未確認部分、過去の訂正を整理 |
 
 ## 分野別の研究
 
 | 分野 | 研究まとめ |
 |---|---|
 | 戦闘乗っ取り・戦闘終了処理 | [REF_BATTLE_TAKEOVER.md](REF_BATTLE_TAKEOVER.md) |
+| 戦闘の丸ごと乗っ取り（画面なし戦闘経路） | [REF_BATTLE_TAKEOVER_HEADLESS.md](REF_BATTLE_TAKEOVER_HEADLESS.md) |
 | 戦闘AI・士気・退却 | [REF_BATTLE_AI_MORALE.md](REF_BATTLE_AI_MORALE.md) |
 | 経験値・訓練・召喚 | [REF_UNIT_EXP_SUMMON.md](REF_UNIT_EXP_SUMMON.md) |
 | 技能発動後処理 | [REF_SKILL_POST_ACTION.md](REF_SKILL_POST_ACTION.md) |

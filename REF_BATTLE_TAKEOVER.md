@@ -169,3 +169,12 @@ These are curator-checked **policy and synthetic evidence boundaries only**, not
 - The native `0x5B5BBA` helper prologue builds a local exception-like object, sets a constant `0x6097E8` into a local field, calls `0x5B5BCF -> 0x5B65BB` and `0x5B5BE4 -> 0x5B864E`, then contains `0x5B5BE9 int3`. Active V9 `--inspect 0x5B5BBA` independently lists these two direct outgoing E8 edges and many other callers; neither the exact C++ exception class/ABI nor any observed runtime throw/catch/crash is established here.
 
 **Correction/boundary:** prior §13 proves five selected JBE guard instructions; this new ID documents the **shared native exceptional-route callee**, not a blanket guarantee of safe recovery or a proven crash when `vector count % 5 != 0`. The owner hypothesis about incomplete five-entry tuples is conditional on actual consumer reachability, container mutation, error handling and exception-catching state; all remain **VERIFY**. Do not turn the compiler-like helper into a G4 external settlement contract or an alternate hook. Owner prior safety-held source remains excluded; no refused operation was retried. Original-game Golden PASS=0, strict MATCH=0, new READY=0, G4 NOT PASSED. Next independent B cursor `B-20261029-0415-T028-ALTVECTOR-FIRE-REGISTRATION-JOIN-01`, with E/REA unchanged backlog.
+
+## 15. 画面なし戦闘（BattleWnd）経路を差し替え口にする案（2026-11-11）
+
+**設計提案と静的確認。** P0 の戦闘シーン経路では G4 が NO-GO のままなので、別の差し替え口を [REF_BATTLE_TAKEOVER_HEADLESS.md](REF_BATTLE_TAKEOVER_HEADLESS.md) にまとめた。要点は次のとおり。
+
+- 画面なしの戦闘は、戦況ウィンドウの毎フレーム処理 `0x40E220` が `0x40E27F` で戦闘計算 `0x40E2F0` を呼び、戻り値0なら続行、0以外なら `0x40E2B9` から `0x493630(…, 戻り値==1)` を1回だけ呼ぶ構造。`0x40E2F0` への直接CALLはこの1か所だけで、関数ポインタとしての参照もない。
+- 戦闘計算だけを外部エンジンに置き換え、結果が出るまで0を返せば、Task dispatcher で止める必要がない（G2）。正規の終了処理は原作が1回だけ呼ぶ（G4）。反映前なら元の関数へ戻すだけで原作の戦闘が始まる（G6 の反映前部分）。
+- SimpleUnit の vtable+0x70 = `0x544790`（thiscall、引数4個）は HP を減らし、0以下で功績 +0x1B4 の加算、共有 def +0x1B0（死亡フラグ）の書込み、vf+0x58 の呼出しを行う。戦死を原作の処理で反映する口の候補。
+- 原作の実機試験は未実施。Golden PASS 0 / strict MATCH 0。G4 はこの経路でも未合格のまま（設計段階）。

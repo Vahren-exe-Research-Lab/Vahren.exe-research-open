@@ -60,6 +60,7 @@ nav:
   - 関数・アドレス事典: reference/README.md
   - 分野別研究:
       - 戦闘乗っ取り: REF_BATTLE_TAKEOVER.md
+      - 戦闘の丸ごと乗っ取り（画面なし経路）: REF_BATTLE_TAKEOVER_HEADLESS.md
       - 戦闘AI・士気: REF_BATTLE_AI_MORALE.md
       - 経験値・召喚: REF_UNIT_EXP_SUMMON.md
       - スキル処理: REF_SKILL_POST_ACTION.md
