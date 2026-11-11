@@ -3,7 +3,7 @@
 > 迫真戦記 ver0.67 の研究用辞書です。静的解析・既存研究報告の情報であり、すべて実機確認済みではありません。
 > 原作EXE、非公開の研究原本、Git履歴は収録していません。
 
-収録：アドレス **510項目**（関数 **370件**）、構造体フィールド **122件**、直接CALL **2373レコード**。
+収録：アドレス **516項目**（関数 **373件**）、構造体フィールド **122件**、直接CALL **2373レコード**。
 
 ## 関数・アドレス一覧
 
@@ -12,7 +12,8 @@
 | [0x00402C40](symbols/00402C40.md) | func | UnitData_CompareRawStringKeys | UnitData のキー比較で呼び出す生バイトの文字列比較。共通先頭が一致しても長さが異なれば別キーとなる。 |
 | [0x00406E20](symbols/00406E20.md) | func | Nop_406E20 | 何もしない関数（TempStatusWnd の vtable +0x44） |
 | [0x0040D0A0](symbols/0040D0A0.md) | func | BattleStatusWnd_Open | 戦況ウィンドウを開く処理 |
-| [0x0040E220](symbols/0040E220.md) | func | SimpleBattle_CommitResult | 原作x86のモード・候補分岐後、0x40E2F0の戻り値が非ゼロなら0x493630/0x40F000/0x48ABF0を呼ぶ。G4外部結果反映・実機勝敗の成立は未検証。 |
+| [0x0040E220](symbols/0040E220.md) | func | SimpleBattle_CommitResult | 簡易戦闘の毎フレーム処理（BattleWnd 副vtable+4、this=W+0x28）。VM が動いていれば 0x4338D0、そうでなければ 0x40E27F で 0x40E2F0 を呼び、0 以外なら 0x40E2B9 で 0x493630(…, ret==1) → 0x40F000 → 0x48ABF0。戻り値 1＝攻撃側の勝ち、外部結果の反映、0 を返し続けての待機を実機確認 |
+| [0x0040E27F](symbols/0040E27F.md) | code | SimpleBattle_SimCallSite | 簡易戦闘の毎フレームの計算呼出し call 0x40E2F0（EAX=戦況ウィンドウ W、戻り値 0=続行/1=攻撃側の勝ち/2=防衛側の勝ち）。直接呼出しはここだけ。戦闘差し替えの差し替え口。0 を返し続けても原作は戦況ウィンドウのまま待つ（実機） |
 | [0x0040E2F0](symbols/0040E2F0.md) | func | SimpleBattle_RunBoundedRounds | 簡略戦闘の反復処理。局所カウンタの上限は500で、上限到達時の戻り値0は勝敗確定を意味しない。 |
 | [0x0040ED80](symbols/0040ED80.md) | func | Rng_RangeInclusive | lo + ftol(rand/32768*(hi-lo))。rand を 1 回使う |
 | [0x0040F000](symbols/0040F000.md) | func | SimpleBattle_ReleaseSides | 簡略戦闘の結果反映後に両陣営の virtual +0x10 を呼び、戦闘用ユニットを破棄する処理へ進む。 |
@@ -55,6 +56,7 @@
 | [0x004365F0](symbols/004365F0.md) | func | Event_InsertFrameKindZero | スクリプト実行フレームの構築時に引数0を配列の先頭へ挿入する補助。フレーム種類と命令位置の扱いに関係する。 |
 | [0x00436870](symbols/00436870.md) | func | Text_Prepare_436870 | ボタンの文字などを用意する（推定） |
 | [0x0043B5A0](symbols/0043B5A0.md) | func | ExpresElement_IsString_False | 常に偽を返す関数（TempStatusWnd の vtable +0x1C にも使われる） |
+| [0x004479DF](symbols/004479DF.md) | code | Enemy_Vf03_StaleTroopRead | Enemy::vf03 0x447810 内の cmp byte [eax+0x1D],0。簡易戦闘で battle{} を設置すると、0x492890 が画面ありの戦闘用の陣営に vtable+0x0C を呼び、ここで古いデータを読んで落ちた（実機 1 回、例外 0xC0000005） |
 | [0x00448E90](symbols/00448E90.md) | func | ModeScoreRank_Process | mode==2の候補+0xA0Cと他modeの+0xA10を比較子0x447240/0x447260へ分け、候補順位を更新する経路。最終targetは未証明。 |
 | [0x00449500](symbols/00449500.md) | func | BattleCategory_UpdateUnitCandidates | カテゴリlabel・係数とeligible Unit配列の反復writer呼出し。category3入力のABIと実行後行動は未確定。 |
 | [0x0044CF80](symbols/0044CF80.md) | func | Ai_DispatchMode1UnitGroup | mode1 の経路から Unit 群の仮想関数表 +0x68 を引数1で呼び出す。対象クラスとゲーム上の意味は未確定。 |
@@ -128,7 +130,7 @@
 | [0x0048F9E0](symbols/0048F9E0.md) | func | War_Start | 戦争開始 |
 | [0x004922A0](symbols/004922A0.md) | func | Battle_Begin | 戦闘の開始（簡易戦闘の後に fight）。通常は 0x4922A0(GM, skip) から |
 | [0x00492710](symbols/00492710.md) | func | Event_InitializeBattleClock | 戦闘開始時に engine+0x1EED60（resetTime対象）と +0x1EED64（interval基準）を両方0へ戻す。 |
-| [0x00492890](symbols/00492890.md) | func | BattleEvent_InstallBattleBlock | ScriptBattle の処理 |
+| [0x00492890](symbols/00492890.md) | func | BattleEvent_InstallBattleBlock | ScriptBattle の処理。モード2・active1 を書いたあと、画面ありの戦闘用の 3 陣営 E+0x1E8630/34/38 の vtable+0x0C を無条件に呼ぶ（0x492A43..0x492A65）。簡易戦闘ではこれが原因で落ちることがある |
 | [0x00492960](symbols/00492960.md) | code | Event_SetBattleExecutionMode_ReportedSite | 回収済みT010報告が戦闘setupとして示す位置。engine+0x1EEC3Cに2を設定すると記載。関数入口ではなく、命令位置・境界の原作再検証なし。 |
 | [0x00492D80](symbols/00492D80.md) | func | Event_ProcessBattleTick | 戦闘の進行に合わせた処理経路。自然終了判定と ScriptVM の再開に関連する入口として参照される。 |
 | [0x004930C0](symbols/004930C0.md) | func | Event_EvaluateBattleIfRoots | 戦闘に登録された if/rif のroot条件を評価する。真の通常ifは実行後に集合から除去し、rifは残す。 |
@@ -241,7 +243,9 @@
 | [0x00542280](symbols/00542280.md) | func | Ai_ReadAngleOrAtan2Fallback | Original x86 returns context+0x50 for ordinary ordered nonsentinel values; exact 10000.0 branches to two signed coordinate deltas, 0x5E743A atan2 and float-rounded pi. ABI and runtime VERIFY; corrects |
 | [0x00543E00](symbols/00543E00.md) | func | Unit_DestroyBattleUnit | BattleUnit の破棄処理。Unit+0x1E4B8 にある召喚記録用の木を解放する経路を持つ。 |
 | [0x00544290](symbols/00544290.md) | func | Battle_CreateSimpleUnit | SimpleUnit の戦闘用オブジェクトを生成する入口。初期化で Unit+0x8C/0x8D を通常型として設定する。 |
-| [0x005445E0](symbols/005445E0.md) | func | SimpleUnit_OnDefeated | 簡易戦闘型 BattleUnit の vtable+0x58。+0x1867C と UnitData+0x1B1 を立て、HP+0x90=0、element_lost の子を消す。 |
+| [0x005445E0](symbols/005445E0.md) | func | SimpleUnit_OnDefeated | 簡易戦闘型 BattleUnit の vtable+0x58（除去）。+0x1867C と UnitData+0x1B1 を立て、HP+0x90=0、element_lost の子を消す。死亡だけでなく撤退でも使われる（実機：原作の簡易戦闘で HP が残ったままの除去が 187 件中 109 件） |
+| [0x00544770](symbols/00544770.md) | func | SimpleUnit_Retreat | SimpleUnit の vtable+0x5C。vf+0x58（除去）を呼んでから +0x18680=1 を立てる撤退処理。戦闘差し替えで外部結果の撤退に使い、撤退先・放浪化は原作が処理した |
+| [0x00544790](symbols/00544790.md) | func | SimpleUnit_ReceiveDamage | SimpleUnit の vtable+0x70。__thiscall(self, ダメージ, 攻撃者 or NULL, 技能, 0)、ret 0x10。HP+0x90 を引き、0 以下で撃破報酬・生存判定 0x588470→UnitData+0x1B0・vf+0x58・dead_event を行う。技能は NULL 不可。0xF4241 は即死の特別値 |
 | [0x005450C0](symbols/005450C0.md) | func | UnitData_ReleaseRecordTree | BattleUnit の記録木を後処理する破棄補助。0x543E00 側から呼ばれ、0x5454D0 に接続する。 |
 | [0x005454D0](symbols/005454D0.md) | func | UnitData_ReleaseRecordNode | 記録木の要素を解放する補助。後段で UnitData の文字列・vector 破棄 0x4591F0 へつながる。 |
 | [0x00545740](symbols/00545740.md) | func | Unit_UpdateSimpleFrame | SimpleUnit 側の戦闘更新経路。探索カウンタ Unit+0x1E534 を増やし、ノックバック判定より前に行動処理を進める。 |
@@ -322,7 +326,7 @@
 | [0x00574D70](symbols/00574D70.md) | func | BattleCandidate_ScriptListInsertNode | World Script側callerからUnit+0x18654の候補countを1増加しnode連結。unsigned capacity guardは正常count前提の条件付きであり具体的なDAT command・実標的は未確定。 |
 | [0x00574E30](symbols/00574E30.md) | func | BattleCandidate_ScriptListEraseMatchingNode | Unit候補listで一致nodeをunlink/freeして+0x18654を減少させる局所処理。別vector消去とscript実命令意味はVERIFY。 |
 | [0x00575110](symbols/00575110.md) | func | Unit_LevelUpLoop | Unit 版のレベルアップ |
-| [0x00575A60](symbols/00575A60.md) | func | Unit_OnDefeated | 通常型 BattleUnit の vtable+0x58。最初の1回だけ +0x1867C を立て、生きている子のうち element_lost の子を子の vtable+0x58 で消す。陣営 +0x48 の一覧からは外さない。 |
+| [0x00575A60](symbols/00575A60.md) | func | Unit_OnDefeated | 通常型 BattleUnit の vtable+0x58。最初の1回だけ +0x1867C を立て、生きている子のうち element_lost の子を子の vtable+0x58 で消す。陣営 +0x48 の一覧からは外さない。 撤退でも使われる除去処理と見られる（SimpleUnit 版の実機結果から。通常型は未確認） |
 | [0x005769B0](symbols/005769B0.md) | func | Unit_ProcessKnockbackMotion | ノックバック関連の Unit+0x18688 などを更新する関数。押し戻し移動と状態値の複数分岐を含む。 |
 | [0x00576F10](symbols/00576F10.md) | func | SkillFlash_PostDamage_GatedRingDispatch | Bounded original x86: Unit+0x1867C/+0x8D gates, 8-slot R ring Unit+0x928+idx*0x264, conditional direct 0x4DFBB0 call, normal ret 4; lower effect/RNG unverified |
 | [0x00577100](symbols/00577100.md) | func | Unit_PostHpTierRegister | Original x86 288B/85 instructions: Unit flag guards; mode0 0x41E160 unlink and timer clear; enabled HP/HPmax/0.05 integerized tier clamp 0..20 to +0x738; conditional 0x41E060 registration; +0x185F4=15 |
@@ -331,6 +335,7 @@
 | [0x00577405](symbols/00577405.md) | code | UnitData_ReturnInsertedRecord | 召喚記録の挿入関数が EAX に記録 R のポインタを返す位置。 |
 | [0x005774A0](symbols/005774A0.md) | func | Unit_AppendSummonChild | 親 BattleUnit の子一覧 +0x178/+0x17C/+0x180 に子を追加する（stdcall(parent, child) ret 8）。子の +0x1E594 が 0 でなければ親に書き換える。呼出しは召喚生成直後の 0x54F245/0x5479F0/0x5537BF の3か所のみ。一覧から外す処理はない。 |
 | [0x00577600](symbols/00577600.md) | func | BattleCandidate_CountGatedStatusUpdate | Unit+0x18654が零の分岐と、非零時の候補条件によるUnit+0x18638/3C局所更新を持つ。最終ゲーム効果とABIは未検証。 |
+| [0x00578370](symbols/00578370.md) | func | Unit_ReceiveDamage | 通常 Unit の vtable+0x70（表の項目 0x63AA54）。SimpleUnit_ReceiveDamage と同じ形で、dead_event_a/d と 0x4321B0 呼出しを含む。直接 E8 の呼出し元は無い |
 | [0x00578B70](symbols/00578B70.md) | func | Status_ApplyGaugeReduction | 状態異常ゲージを減算し、unit_status_min を下限として制限する。EXP吸収分岐もこの関数内にある。 |
 | [0x00579940](symbols/00579940.md) | func | UnitData_CompareRecordKeys | 記録木の文字列キーを短文字列とヒープ文字列の双方から読み、辞書順に比較する処理を含む。 |
 | [0x00579EB0](symbols/00579EB0.md) | func | BattleCandidate_MergeBucketLists | 候補listから一時carryと26桶へ移管・mergeし、最後に入力listへ戻す原作x86経路。攻撃先の確定処理ではない。 |
@@ -365,7 +370,7 @@
 | [0x00585AD0](symbols/00585AD0.md) | func | UnitDef_GetField | ユニット定義の DAT プロパティ（"level"、"noremove_unit" など）を、ユニット ID とクラスをたどって引く |
 | [0x00586320](symbols/00586320.md) | func | UnitDef_GetFriendSet | friend 集合の遅延生成（def+0x158） |
 | [0x00587CC0](symbols/00587CC0.md) | func | Unit_CachedValueOrAggregate | T011§17では引数0はUnit+0x1C4のキャッシュ返却。非0は重み付き入力集計の先頭区間までの確認で、最終返値・内部書込・全体副作用は同区間では未証明。Fの格納・返値利用の実装報告との原作帰属照合は未実施。 |
-| [0x00588470](symbols/00588470.md) | func | UnitData_ResolveTypedDefinition | Unit/クラス等の名前・種別の階層検索に関わる補助。参照先型に応じたプロパティ取得を含む。 |
+| [0x00588470](symbols/00588470.md) | func | Unit_DeathSurvivalRoll | 戦死時の生存判定と見られる（P0 exit 研究：EXP 補正、関連記録+0x174 または勢力+0x5C 減算、alive_per の乱数）。戻り値 AL を UnitData+0x1B0 に書く（0x578975、0x544B50）。旧名 UnitData_ResolveTypedDefinition は根拠が薄いので訂正 |
 | [0x0058A400](symbols/0058A400.md) | func | UnitDef_ExpNext | 次のレベルに必要な経験値の計算（符号なし） |
 | [0x0058A540](symbols/0058A540.md) | func | UnitDef_ExpTotal | 経験値の累計計算（符号付き） |
 | [0x0058A650](symbols/0058A650.md) | func | UnitDef_LevelUpLoop | def 単体のレベルアップのループ |
@@ -519,6 +524,7 @@
 | [0x00AAD434](symbols/00AAD434.md) | global | g_GameManager_sceneId | 現在の場面番号（G+0x1EF144）。0=タイトル、4=シナリオ選択 など |
 | [0x00AC0914](symbols/00AC0914.md) | global | g_LastPresentResult | 直前の Present の戻り値。D3DERR_DEVICELOST(0x88760868)なら0x4C24B0が復帰処理（TestCooperativeLevel→Reset）に入る |
 | [0x00AC0918](symbols/00AC0918.md) | global | g_FrameStartTime | 1コマの開始時刻（timeGetTime、Sleep前）。起動直後0で、メインループ0x4C24B0だけが書く。0以外なら本ループが回っている |
+| [0x00B09758](symbols/00B09758.md) | object | g_DefaultSkill | 関数内 static の既定技能。0xB0A178 bit0 が 0 なら 0x599600(__stdcall) で組み立て、atexit に 0x608900 を登録（0x57E004..0x57E02E）。即死ダメージ vf+0x70(0xF4241, …, &g_DefaultSkill, 0) の技能引数に使う |
 
 ## 構造体一覧
 

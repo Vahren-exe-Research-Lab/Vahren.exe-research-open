@@ -31,7 +31,7 @@ def build():
  calls=list(csv.DictReader((REF/"static_calls.tsv").open(encoding="utf-8-sig",newline=""),delimiter="\t"))
  rel=jsonl("reference/relations.jsonl")
  fixes=jsonl("reference/corrections.jsonl")
- assert (len(syms),len(fields),len(rel),len(fixes))==(510,122,165,17)
+ assert (len(syms),len(fields),len(rel),len(fixes))==(516,122,165,17)
  assert len(calls)>2000
  dic={norm(x[0]):x for x in syms}
  groups=defaultdict(list)

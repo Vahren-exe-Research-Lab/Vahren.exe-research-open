@@ -56,11 +56,12 @@ nav:
       - 書き込み・訂正: guides/contributing.md
       - 研究の読み方: guides/reading-research.md
       - 最初の調べもの: guides/first-lookup.md
+      - 確認用シナリオの作り方: guides/test-scenario-dat.md
   - 研究ガイド: GUIDE.md
   - 関数・アドレス事典: reference/README.md
   - 分野別研究:
       - 戦闘乗っ取り: REF_BATTLE_TAKEOVER.md
-      - 戦闘の丸ごと乗っ取り（画面なし経路）: REF_BATTLE_TAKEOVER_HEADLESS.md
+      - 戦闘差し替え（簡易戦闘）: REF_BATTLE_SWAP_HEADLESS.md
       - 戦闘AI・士気: REF_BATTLE_AI_MORALE.md
       - 経験値・召喚: REF_UNIT_EXP_SUMMON.md
       - スキル処理: REF_SKILL_POST_ACTION.md

@@ -172,7 +172,7 @@ These are curator-checked **policy and synthetic evidence boundaries only**, not
 
 ## 15. 画面なし戦闘（BattleWnd）経路を差し替え口にする案（2026-11-11）
 
-**設計提案と静的確認。** P0 の戦闘シーン経路では G4 が NO-GO のままなので、別の差し替え口を [REF_BATTLE_TAKEOVER_HEADLESS.md](REF_BATTLE_TAKEOVER_HEADLESS.md) にまとめた。要点は次のとおり。
+**設計提案と静的確認。** P0 の戦闘シーン経路では G4 が NO-GO のままなので、別の差し替え口を [REF_BATTLE_SWAP_HEADLESS.md](REF_BATTLE_SWAP_HEADLESS.md) にまとめた。要点は次のとおり。
 
 - 画面なしの戦闘は、戦況ウィンドウの毎フレーム処理 `0x40E220` が `0x40E27F` で戦闘計算 `0x40E2F0` を呼び、戻り値0なら続行、0以外なら `0x40E2B9` から `0x493630(…, 戻り値==1)` を1回だけ呼ぶ構造。`0x40E2F0` への直接CALLはこの1か所だけで、関数ポインタとしての参照もない。
 - 戦闘計算だけを外部エンジンに置き換え、結果が出るまで0を返せば、Task dispatcher で止める必要がない（G2）。正規の終了処理は原作が1回だけ呼ぶ（G4）。反映前なら元の関数へ戻すだけで原作の戦闘が始まる（G6 の反映前部分）。

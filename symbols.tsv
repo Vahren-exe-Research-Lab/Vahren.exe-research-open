@@ -80,7 +80,7 @@
 0x475C60	func	EmployHero_Answer	employ_hero の回答処理	静的確認	F§77
 0x48F9E0	func	War_Start	戦争開始	静的確認	F§68
 0x4922A0	func	Battle_Begin	戦闘の開始（簡易戦闘の後に fight）。通常は 0x4922A0(GM, skip) から	静的確認	F§18, §73
-0x492890	func	BattleEvent_InstallBattleBlock	ScriptBattle の処理	静的確認	F§1.1, 旧symbols
+0x492890	func	BattleEvent_InstallBattleBlock	ScriptBattle の処理。モード2・active1 を書いたあと、画面ありの戦闘用の 3 陣営 E+0x1E8630/34/38 の vtable+0x0C を無条件に呼ぶ（0x492A43..0x492A65）。簡易戦闘ではこれが原因で落ちることがある	静的確認	F§1.1, 旧symbols; Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
 0x493630	func	Battle_End	戦闘終了（勝敗の反映・戦略への復帰）	静的確認	F§67
 0x40D0A0	func	BattleStatusWnd_Open	戦況ウィンドウを開く処理	静的確認	F§82
 0x514C80	func	Battle_SideRemains	side+0x48..+0x4Cの適格候補を探索し、候補が見つかればAL0、なければAL1。isAllDead命令の最終boolや、同じ陣営の全型の全滅判定とは区別する。	静的確認	F§67; data/T030_RTS_MODE.md lines547-550,633-640,727-731 [saved-static authored report; sha256=EVID-0066]; CORRECTION-RTS-EMPTY-SIDE-NOT-ALWAYS-FALSE
@@ -137,7 +137,7 @@
 0x57EB40	func	Unit_DispatchBattleAction	探索更新後の行動候補を処理し、ALを上位分岐に使う。保存済み著者報告では射撃ラッチ2を設定してAL=0で早期returnし、後続MP減算へ進まない経路がある。ALだけを攻撃成功/失敗へ一律対応させない。mode0/1のcaller経路は別。	静的確認	T012§61, T013§B-20261011-0211-01; B-20261013-0151-01/02/03 [recovered=research/recovered/chat_b_remainder2/reports/B_20261013_SKILL_HANDLERS_CHAT.md; 著者静的短報、今回の原作/実機再検証なし]
 0x57E1D0	func	Unit_ExecuteActionRoute	Unit の戦闘行動処理経路の一つ。ダメージ計算 0x550E70 への呼び出し元を含む。	静的確認	T012§16, T013§2026-10-12 19:16
 0x57E4E0	func	Unit_RefreshActionSearch	Unit+0x1E534 を探索閾値にして 0x57B870 を呼び、ターゲット再探索を強制する経路を持つ。	静的確認	T013§target search cadence, T012§61
-0x40E220	func	SimpleBattle_CommitResult	原作x86のモード・候補分岐後、0x40E2F0の戻り値が非ゼロなら0x493630/0x40F000/0x48ABF0を呼ぶ。G4外部結果反映・実機勝敗の成立は未検証。	静的確認	EXP_SIMPLEBATTLE_LIFECYCLE§CP04, T010§battle finish resultFlag
+0x40E220	func	SimpleBattle_CommitResult	簡易戦闘の毎フレーム処理（BattleWnd 副vtable+4、this=W+0x28）。VM が動いていれば 0x4338D0、そうでなければ 0x40E27F で 0x40E2F0 を呼び、0 以外なら 0x40E2B9 で 0x493630(…, ret==1) → 0x40F000 → 0x48ABF0。戻り値 1＝攻撃側の勝ち、外部結果の反映、0 を返し続けての待機を実機確認	実機確認	EXP_SIMPLEBATTLE_LIFECYCLE§CP04, T010§battle finish resultFlag; Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
 0x40E2F0	func	SimpleBattle_RunBoundedRounds	簡略戦闘の反復処理。局所カウンタの上限は500で、上限到達時の戻り値0は勝敗確定を意味しない。	静的確認	EXP_SIMPLEBATTLE_LIFECYCLE§CP05
 0x40F000	func	SimpleBattle_ReleaseSides	簡略戦闘の結果反映後に両陣営の virtual +0x10 を呼び、戦闘用ユニットを破棄する処理へ進む。	静的確認	EXP_SIMPLEBATTLE_LIFECYCLE§CP01/CP04
 0x40F320	func	SimpleBattle_BuildUnitRoster	簡略戦闘用 SimpleUnit を生成し、更新対象の配列へ登録する経路を含む。	静的確認	EXP_SIMPLEBATTLE_LIFECYCLE§CP02
@@ -235,7 +235,7 @@
 0x571B70	func	Unit_InitializeBattleInstance	キャンペーン側の参照 Unit から戦闘インスタンスへ状態を引き継ぐ際に呼ばれる。技能の種別別能力フラグ再構築とも関連する。	推定	T011§13/§15, T013§stealth
 0x587CC0	func	Unit_CachedValueOrAggregate	T011§17では引数0はUnit+0x1C4のキャッシュ返却。非0は重み付き入力集計の先頭区間までの確認で、最終返値・内部書込・全体副作用は同区間では未証明。Fの格納・返値利用の実装報告との原作帰属照合は未実施。	静的確認	T011§15/§16; T011§17; data/T011_DATA_MODEL.md lines300-308 [saved-static authored report; sha256=EVID-0192]; CORRECTION-UNIT-CACHED-VALUE-NOT-RESET; F§64.2; F§75 [implementation/static-crosswalk claims; original callee write attribution not reconciled]
 0x579940	func	UnitData_CompareRecordKeys	記録木の文字列キーを短文字列とヒープ文字列の双方から読み、辞書順に比較する処理を含む。	静的確認	EXP_CACHE_STRING_KEY_RECORD_ABI§1
-0x588470	func	UnitData_ResolveTypedDefinition	Unit/クラス等の名前・種別の階層検索に関わる補助。参照先型に応じたプロパティ取得を含む。	推定	T011§B-20261013-1102
+0x588470	func	Unit_DeathSurvivalRoll	戦死時の生存判定と見られる（P0 exit 研究：EXP 補正、関連記録+0x174 または勢力+0x5C 減算、alive_per の乱数）。戻り値 AL を UnitData+0x1B0 に書く（0x578975、0x544B50）。旧名 UnitData_ResolveTypedDefinition は根拠が薄いので訂正	推定	T011§B-20261013-1102; Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
 0x402C40	func	UnitData_CompareRawStringKeys	UnitData のキー比較で呼び出す生バイトの文字列比較。共通先頭が一致しても長さが異なれば別キーとなる。	静的確認	EXP_CACHE_STRING_KEY_RECORD_ABI§1
 0x63A9E4	object	vt_UnitRuntime	通常型 Unit の仮想関数表。0x56F880 の生成時に vptr へ書き込まれる。	静的確認	EXP_SUMMON_DESTRUCTOR_NORMAL_VTABLE
 0x54ED95	code	Summon_SaveSourceUnitOnFlash	召喚処理で source Unit-like オブジェクトを SummonFlash+0x7C に記録する位置。	静的確認	T011§B-20261027-1514
@@ -510,8 +510,8 @@
 0x5050EE	code	ScriptData_SuperEntryInsertCallSite	Original x86/V9 E8 to 0x463280 within conditional super ScriptData producer; duplicate keys and gameplay VERIFY.	静的確認	B-20261024-22H-T011-T012-SUPER-PARSER-PRODUCER-01; REF_DAT_BEHAVIOR.md; data/T011_T012_SUPER_SCRIPT_PARSER_PRODUCER_NATIVE_20261024_22H.md lines 2,12 [locator-only; recovered=research/recovered/b_batch3/T011_T012_SUPER_SCRIPT_PARSER_PRODUCER_NATIVE_20261024_22H.md; sha256=EVID-0108]
 # ---- 2026-11-03 召喚の親子関係・経験値の加算位置（Claude F§96、原作x86 STATIC、実機未確認） ----
 0x5774A0	func	Unit_AppendSummonChild	親 BattleUnit の子一覧 +0x178/+0x17C/+0x180 に子を追加する（stdcall(parent, child) ret 8）。子の +0x1E594 が 0 でなければ親に書き換える。呼出しは召喚生成直後の 0x54F245/0x5479F0/0x5537BF の3か所のみ。一覧から外す処理はない。	静的確認	F§96, ON-STAND-010
-0x575A60	func	Unit_OnDefeated	通常型 BattleUnit の vtable+0x58。最初の1回だけ +0x1867C を立て、生きている子のうち element_lost の子を子の vtable+0x58 で消す。陣営 +0x48 の一覧からは外さない。	静的確認	F§96, ON-STAND-010
-0x5445E0	func	SimpleUnit_OnDefeated	簡易戦闘型 BattleUnit の vtable+0x58。+0x1867C と UnitData+0x1B1 を立て、HP+0x90=0、element_lost の子を消す。	静的確認	F§96, EXP_ENDTRANSFER CP04, ON-STAND-010
+0x575A60	func	Unit_OnDefeated	通常型 BattleUnit の vtable+0x58。最初の1回だけ +0x1867C を立て、生きている子のうち element_lost の子を子の vtable+0x58 で消す。陣営 +0x48 の一覧からは外さない。 撤退でも使われる除去処理と見られる（SimpleUnit 版の実機結果から。通常型は未確認）	静的確認	F§96, ON-STAND-010; Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
+0x5445E0	func	SimpleUnit_OnDefeated	簡易戦闘型 BattleUnit の vtable+0x58（除去）。+0x1867C と UnitData+0x1B1 を立て、HP+0x90=0、element_lost の子を消す。死亡だけでなく撤退でも使われる（実機：原作の簡易戦闘で HP が残ったままの除去が 187 件中 109 件）	静的確認	F§96, EXP_ENDTRANSFER CP04, ON-STAND-010; Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
 0x551FB2	code	Hit_LinkedAward_AddExp	0x551E50 内の経験値加算 add [edi+0x16C],edx（6バイト）。EDI=加算先 UnitData、EDX=量、ESI=context（[esi]=actor）。DLL のフック候補。	静的確認	F§96, EXP_ENDTRANSFER CP17
 
 # ---- T028 original-x86 bounded flag helper (2026-11-03) ----
@@ -577,3 +577,10 @@
 0x5DFE10	func	VorbisResidue_Parse	residue分類数/次元数と反復積を検査するparser。正常reader/成功受理・未改変条件でB>=1,D>=1,P<=Eの制約を持ち、6bit EOFは次8bit負値拒否へ伝播するという著者報告。 正常reader/非負packet長/未改変成功recordに限定。全alias/入力/ABI/allocator failure/実機挙動を証明しない。	推定	ChatGPT Library/REA_OFFLINE_20261101_04H_RESIDUE_POWER_BOUND_REPORT.md LF26-31; ChatGPT Library/REA_OFFLINE_20261101_05H_RESIDUE_EOF_LATCH_REPORT.md LF24-30,34-36 (historical authored static report; no new native/runtime verification)
 0x5DFFC0	func	VorbisResidue_Init	compiled codebook entryからdimensionを取りresidue instanceへ対応づけ、正常未改変受理条件ではB^Dと確保要求/除数に上限・非ゼロの制約があるという著者報告。 03H局所懸念を04H条件付き訂正と併記。任意object/全入口/allocator failure安全を確定しない。	推定	ChatGPT Library/REA_OFFLINE_20261101_03H_CODEBOOK_DIMENSION_REPORT.md LF25-29; ChatGPT Library/REA_OFFLINE_20261101_04H_RESIDUE_POWER_BOUND_REPORT.md LF24-31,41-45 (historical authored static report; no new native/runtime verification)
 0x5E0DC0	func	VorbisResidue2_Decode	type2復号関数と報告された入口。instance+0x10のcompiled codebook先頭DWORDを除数として局所IDIVで使用する。 局所division経路だけ。fulldecoder ABI・全副作用・ゲームtype2使用・全除算安全を意味しない。	推定	ChatGPT Library/REA_OFFLINE_20261101_03H_CODEBOOK_DIMENSION_REPORT.md LF28-31; ChatGPT Library/REA_OFFLINE_20261101_04H_RESIDUE_POWER_BOUND_REPORT.md LF37 (historical authored static report; no new native/runtime verification)
+# ---- 戦闘差し替え（簡易戦闘、2026-11-12） ----
+0x40E27F	code	SimpleBattle_SimCallSite	簡易戦闘の毎フレームの計算呼出し call 0x40E2F0（EAX=戦況ウィンドウ W、戻り値 0=続行/1=攻撃側の勝ち/2=防衛側の勝ち）。直接呼出しはここだけ。戦闘差し替えの差し替え口。0 を返し続けても原作は戦況ウィンドウのまま待つ（実機）	実機確認	Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
+0x544790	func	SimpleUnit_ReceiveDamage	SimpleUnit の vtable+0x70。__thiscall(self, ダメージ, 攻撃者 or NULL, 技能, 0)、ret 0x10。HP+0x90 を引き、0 以下で撃破報酬・生存判定 0x588470→UnitData+0x1B0・vf+0x58・dead_event を行う。技能は NULL 不可。0xF4241 は即死の特別値	実機確認	Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
+0x578370	func	Unit_ReceiveDamage	通常 Unit の vtable+0x70（表の項目 0x63AA54）。SimpleUnit_ReceiveDamage と同じ形で、dead_event_a/d と 0x4321B0 呼出しを含む。直接 E8 の呼出し元は無い	静的確認	Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
+0x544770	func	SimpleUnit_Retreat	SimpleUnit の vtable+0x5C。vf+0x58（除去）を呼んでから +0x18680=1 を立てる撤退処理。戦闘差し替えで外部結果の撤退に使い、撤退先・放浪化は原作が処理した	実機確認	Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
+0xB09758	object	g_DefaultSkill	関数内 static の既定技能。0xB0A178 bit0 が 0 なら 0x599600(__stdcall) で組み立て、atexit に 0x608900 を登録（0x57E004..0x57E02E）。即死ダメージ vf+0x70(0xF4241, …, &g_DefaultSkill, 0) の技能引数に使う	実機確認	Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
+0x4479DF	code	Enemy_Vf03_StaleTroopRead	Enemy::vf03 0x447810 内の cmp byte [eax+0x1D],0。簡易戦闘で battle{} を設置すると、0x492890 が画面ありの戦闘用の陣営に vtable+0x0C を呼び、ここで古いデータを読んで落ちた（実機 1 回、例外 0xC0000005）	実機確認	Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
