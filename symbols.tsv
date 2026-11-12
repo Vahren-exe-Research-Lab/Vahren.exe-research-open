@@ -201,7 +201,7 @@
 0x4C7040	func	Ai_ApplyFourwayPairState	四方向用の +0x48/+0x4A/+0x4C/+0x4E の各ペアを番号0〜3で処理する。実際のゲーム効果の意味は未確定。	静的確認	T024§B-20261025-2313
 0x44CF80	func	Ai_DispatchMode1UnitGroup	mode1 の経路から Unit 群の仮想関数表 +0x68 を引数1で呼び出す。対象クラスとゲーム上の意味は未確定。	静的確認	T013§B-20261029-1613; B-20261029-1613-T013-MODE1-VTABLE68-CLASS-DISPATCH-01; B-20261029-1713-T013-UPSTREAM-FOUR-CALL-GROUP-FILTER-01; data/T013_MODE1_UPSTREAM_FOUR_CALLER_GROUP_FILTER_NATIVE_20261029_17H.md lines 1,9 [locator-only; recovered=research/recovered/b_batch9/data/T013_MODE1_UPSTREAM_FOUR_CALLER_GROUP_FILTER_NATIVE_20261029_17H.md; sha256=EVID-0031]
 0x49E8B0	func	Ai_CollectAliveUnitsFromTree	木構造のユニット参照を走査し、Unit+0x1867C!=0 の死亡扱いを除外して生存ユニットを配列に集める。	静的確認	T013§B-20261024-0110
-0x49CD60	func	Ai_UpdateKeyedUnitVector	キー付きベクトルを検索・消去・挿入する関数群の入口。書換えで使われる値の名称と全分岐は未確定。	推定	T013§B-20261024-0616
+0x49CD60	func	Ai_UpdateKeyedUnitVector	キー付きベクトルを検索・消去・挿入する関数群の入口。書換えで使われる値の名称と全分岐は未確定。 戦死処理で dead_event_a / dead_event_d の設定にも使われる（0x544C5E / 0x544CA0 / 0x578A91 / 0x578AD3）。	推定	T013§B-20261024-0616, Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
 0x49F7D0	func	Ai_InsertKeyedVectorRecord	キー付きベクトルを格納する木への挿入処理を担当する。record+0x1C の3ポインタの引継ぎを含む。	静的確認	T013§B-20261024-0616
 0x5E3B70	func	Ai_ComputeCandidateDistance	候補選定で座標差の平方和を受ける平方根相当の距離計算補助として呼ばれる。	推定	T013§同距離target候補のtie-break
 0x4F93A0	func	Ai_ComputeBattleAreaTargetPoint	戦闘領域の境界値と Unit 座標から候補座標を生成する補助。探索キャッシュの後段補正で呼ばれる。	推定	T013§B-20261021-1914-01; B-20261029-1112-T013-ANGLE-QUADRANT-CORRECTION-NATIVE-01; B-20261029-1216-T013-POSTSELECT-ATAN2-FLOOR-ABI-JOIN-01; data/T013_POSTSELECT_ATAN2_FLOOR_ABI_JOIN_NATIVE_20261029_12H.md lines 1,8 [locator-only; recovered=research/recovered/b_reports/T013_POSTSELECT_ATAN2_FLOOR_ABI_JOIN_NATIVE_20261029_12H.md; sha256=EVID-0275]
@@ -255,7 +255,7 @@
 0x4270F0	func	Save_DecodeAdditiveEnvelope	01 02 03 04 のマジックを検査し、28バイト鍵でデータを減算復号した後に32バイトヘッダを除去する。	静的確認	T014§binary format / envelope, §通常 .sav writer
 0x429C60	func	Save_DecodeGlobalRecords	global.sav 読込後のデータを復号・解析し、キーと補助文字列とint32値の記録木に展開する補助。	推定	T014§global.sav load model
 0x4637A0	func	Variable_WriteNumericMap	スクリプトの永続数値変数を engine+0x30C/+0x310 のmapへ書き込む。pushRand などの命令からも呼ばれる。	静的確認	T014§通常save groupの意味同定, T031§18
-0x463CA0	func	Variable_GetOrCreateNumeric	スクリプト数値変数を名前で検索し、存在しなければ値+0x1Cを0にした新レコードを作る。	静的確認	T014§2026-10-08 A5, T032§7.1
+0x463CA0	func	Variable_GetOrCreateNumeric	スクリプト数値変数を名前で検索し、存在しなければ値+0x1Cを0にした新レコードを作る。 ストアは MSVC2010 std::map<std::string, Record*>：[base+0x310]=head、[head+4]=root、ノード +0xC キー・+0x28 Record*。Record +0 文字列・+0x1C 整数。base は Unit+0x1DC の ctx と同じもの。	静的確認	T014§2026-10-08 A5, T032§7.1, Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
 0x41EBE0	func	Variable_ModifyNumericDirect	数値変数の参照を 0x463CA0 で取得した後、record+0x1C を直接更新する分岐を含む。	静的確認	T014§2026-10-08 A9
 0x463610	func	Variable_WriteScenarioName	起動時の @scenario 用に呼ばれる別の変数 writer。@gamemode の数値変数経路とは異なる。	静的確認	T014§2026-10-08 A12
 0x58F7E0	func	Variable_EraseOldMappedValue	数値変数の既存record更新時の一部条件で呼ばれる、旧値処理の補助。厳密な破棄条件は未確認。	推定	T014§2026-10-08 A13, T011§B-20261025-1513
@@ -579,8 +579,12 @@
 0x5E0DC0	func	VorbisResidue2_Decode	type2復号関数と報告された入口。instance+0x10のcompiled codebook先頭DWORDを除数として局所IDIVで使用する。 局所division経路だけ。fulldecoder ABI・全副作用・ゲームtype2使用・全除算安全を意味しない。	推定	ChatGPT Library/REA_OFFLINE_20261101_03H_CODEBOOK_DIMENSION_REPORT.md LF28-31; ChatGPT Library/REA_OFFLINE_20261101_04H_RESIDUE_POWER_BOUND_REPORT.md LF37 (historical authored static report; no new native/runtime verification)
 # ---- 戦闘差し替え（簡易戦闘、2026-11-12） ----
 0x40E27F	code	SimpleBattle_SimCallSite	簡易戦闘の毎フレームの計算呼出し call 0x40E2F0（EAX=戦況ウィンドウ W、戻り値 0=続行/1=攻撃側の勝ち/2=防衛側の勝ち）。直接呼出しはここだけ。戦闘差し替えの差し替え口。0 を返し続けても原作は戦況ウィンドウのまま待つ（実機）	実機確認	Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
-0x544790	func	SimpleUnit_ReceiveDamage	SimpleUnit の vtable+0x70。__thiscall(self, ダメージ, 攻撃者 or NULL, 技能, 0)、ret 0x10。HP+0x90 を引き、0 以下で撃破報酬・生存判定 0x588470→UnitData+0x1B0・vf+0x58・dead_event を行う。技能は NULL 不可。0xF4241 は即死の特別値	実機確認	Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
+0x544790	func	SimpleUnit_ReceiveDamage	SimpleUnit の vtable+0x70。__thiscall(self, ダメージ, 攻撃者 or NULL, 技能, 0)、ret 0x10。HP+0x90 を引き（0x5447F7）、0 以下で撃破報酬・break（死亡時スキル）・生存判定 0x588470→UnitData+0x1B0・vf+0x58・dead_event を行う。技能は NULL 不可。0xF4241 はただのダメージ量で、HP 1000001 以上は生き残る（実機）	実機確認	Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
 0x578370	func	Unit_ReceiveDamage	通常 Unit の vtable+0x70（表の項目 0x63AA54）。SimpleUnit_ReceiveDamage と同じ形で、dead_event_a/d と 0x4321B0 呼出しを含む。直接 E8 の呼出し元は無い	静的確認	Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
 0x544770	func	SimpleUnit_Retreat	SimpleUnit の vtable+0x5C。vf+0x58（除去）を呼んでから +0x18680=1 を立てる撤退処理。戦闘差し替えで外部結果の撤退に使い、撤退先・放浪化は原作が処理した	実機確認	Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
-0xB09758	object	g_DefaultSkill	関数内 static の既定技能。0xB0A178 bit0 が 0 なら 0x599600(__stdcall) で組み立て、atexit に 0x608900 を登録（0x57E004..0x57E02E）。即死ダメージ vf+0x70(0xF4241, …, &g_DefaultSkill, 0) の技能引数に使う	実機確認	Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
+0xB09758	object	g_DefaultSkill	関数内 static の既定技能。0xB0A178 bit0 が 0 なら 0x599600(__stdcall) で組み立て、atexit に 0x608900 を登録（0x57E004..0x57E02E）。自滅処理の vf+0x70(0xF4241, …, &g_DefaultSkill, 0) の技能引数に使う	実機確認	Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
 0x4479DF	code	Enemy_Vf03_StaleTroopRead	Enemy::vf03 0x447810 内の cmp byte [eax+0x1D],0。簡易戦闘で battle{} を設置すると、0x492890 が画面ありの戦闘用の陣営に vtable+0x0C を呼び、ここで古いデータを読んで落ちた（実機 1 回、例外 0xC0000005）	実機確認	Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
+0x4321B0	func	Script_CallEvent	スクリプトのイベントを名前で呼ぶ。__stdcall(E, std::string 名前, 0, 0, flag)。flag≠0 かつ [E+0x1EEC44]≠0 なら "btlevent" として戦闘中の予約に積み（0x432209..0x432301）、そうでなければ @evtend_<名前> を扱ってその場で実行する（0x432306..）。dead_event の呼出しに使われる。簡易戦闘では [E+0x1EEC44]=0、画面ありの戦闘では 1 だった（実機）	実機確認	Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
+0x544CC2	code	SimpleUnit_DeadEventCallSite	SimpleUnit_ReceiveDamage 内の call 0x4321B0（dead_event、EBX=ユニット）。直前に dead_event が "count" かを調べ、dead_event_a/d を設定する（0x544BC7..）	実機確認	Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
+0x578AF5	code	Unit_DeadEventCallSite	Unit_ReceiveDamage 内の call 0x4321B0（dead_event、EBX=ユニット）。SimpleUnit 側 0x544CC2 と同じ形（0x5789F2..）	実機確認	Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS
+0x547FC0	func	SimpleUnit_CastSkill	SimpleUnit の死亡処理が def の "break"（死亡時スキル）を発動させるのに使う（0x544B21）。0x5449B1・0x544BB0 でも別の技能で呼ばれる。引数の意味は未確定	推定	Claude 2026-11-12 REF_BATTLE_SWAP_HEADLESS

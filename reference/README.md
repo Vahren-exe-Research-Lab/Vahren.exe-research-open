@@ -3,7 +3,7 @@
 > 迫真戦記 ver0.67 の研究用辞書です。静的解析・既存研究報告の情報であり、すべて実機確認済みではありません。
 > 原作EXE、非公開の研究原本、Git履歴は収録していません。
 
-収録：アドレス **516項目**（関数 **373件**）、構造体フィールド **122件**、直接CALL **2373レコード**。
+収録：アドレス **520項目**（関数 **375件**）、構造体フィールド **122件**、直接CALL **2373レコード**。
 
 ## 関数・アドレス一覧
 
@@ -40,6 +40,7 @@
 | [0x0042F860](symbols/0042F860.md) | func | StdString_NotEqualsCStr | std::string と C 文字列を比べ、**違えば真**を返す |
 | [0x00431BE0](symbols/00431BE0.md) | func | ResultFlag_GatedStackALWrapper | Bounded original x86 tests vtable+0x64 predicate then reloads AL from stack argument, passes receiver+0x260 to 0x5AA6E0; dynamic result VERIFY |
 | [0x00431FB0](symbols/00431FB0.md) | func | FastSim_PreselectorRangeGate | Original x86 checks two index/begin/end ranges and 0x80000008 sentinels through implicit EAX; caller 0x40E25E branches on AL. Full ABI, field meaning and runtime reachability VERIFY. |
+| [0x004321B0](symbols/004321B0.md) | func | Script_CallEvent | スクリプトのイベントを名前で呼ぶ。__stdcall(E, std::string 名前, 0, 0, flag)。flag≠0 かつ [E+0x1EEC44]≠0 なら "btlevent" として戦闘中の予約に積み（0x432209..0x432301）、そうでなければ @evtend_&lt;名前&gt; を扱ってその場で実行する（0x432306..）。dead_event の呼出しに使わ |
 | [0x00432EE0](symbols/00432EE0.md) | func | Script_FireGameHook | ゲーム側からイベントを起動する仕組み（world/fight/politics フック） |
 | [0x00433203](symbols/00433203.md) | code | Event_InstallPhaseFrames | phase dispatcher 内のフレーム設定位置。4本の並列 VM vector に追加または先頭挿入する。 |
 | [0x004335E0](symbols/004335E0.md) | func | Event_RunExecutionMode | スクリプト実行の現在モード engine+0x1EEC3C によって mode1/2/6 などを分岐する実行経路。 |
@@ -87,7 +88,7 @@
 | [0x00461DA0](symbols/00461DA0.md) | func | World_MonthlyRoamMove | 月次の放浪移動 |
 | [0x00463610](symbols/00463610.md) | func | Variable_WriteScenarioName | 起動時の @scenario 用に呼ばれる別の変数 writer。@gamemode の数値変数経路とは異なる。 |
 | [0x004637A0](symbols/004637A0.md) | func | Variable_WriteNumericMap | スクリプトの永続数値変数を engine+0x30C/+0x310 のmapへ書き込む。pushRand などの命令からも呼ばれる。 |
-| [0x00463CA0](symbols/00463CA0.md) | func | Variable_GetOrCreateNumeric | スクリプト数値変数を名前で検索し、存在しなければ値+0x1Cを0にした新レコードを作る。 |
+| [0x00463CA0](symbols/00463CA0.md) | func | Variable_GetOrCreateNumeric | スクリプト数値変数を名前で検索し、存在しなければ値+0x1Cを0にした新レコードを作る。 ストアは MSVC2010 std::map&lt;std::string, Record*&gt;：[base+0x310]=head、[head+4]=root、ノード +0xC キー・+0x28 Record*。Record +0 文字列・+0x1C 整数。base は Unit+0x1DC の ctx |
 | [0x00464290](symbols/00464290.md) | func | Prop_LookupBase | プロパティの有無を調べる（has_key） |
 | [0x0046453F](symbols/0046453F.md) | code | ScriptData_SuperParentLookupPresenceSite | Original x86/V9 E8 to 0x4C1200 after local optional-parent name checks; all caller and inheritance meaning VERIFY. |
 | [0x004647D0](symbols/004647D0.md) | func | Prop_LookupString | プロパティの文字列を引く（lookup） |
@@ -136,7 +137,7 @@
 | [0x004930C0](symbols/004930C0.md) | func | Event_EvaluateBattleIfRoots | 戦闘に登録された if/rif のroot条件を評価する。真の通常ifは実行後に集合から除去し、rifは残す。 |
 | [0x0049356A](symbols/0049356A.md) | code | Script_ExecEntry_Battle | 0x4A1250 への CALL。戦闘中の battleEvent と dead_event の命令はここを通る。dead_event は倒れたその場で実行。 |
 | [0x00493630](symbols/00493630.md) | func | Battle_End | 戦闘終了（勝敗の反映・戦略への復帰） |
-| [0x0049CD60](symbols/0049CD60.md) | func | Ai_UpdateKeyedUnitVector | キー付きベクトルを検索・消去・挿入する関数群の入口。書換えで使われる値の名称と全分岐は未確定。 |
+| [0x0049CD60](symbols/0049CD60.md) | func | Ai_UpdateKeyedUnitVector | キー付きベクトルを検索・消去・挿入する関数群の入口。書換えで使われる値の名称と全分岐は未確定。 戦死処理で dead_event_a / dead_event_d の設定にも使われる（0x544C5E / 0x544CA0 / 0x578A91 / 0x578AD3）。 |
 | [0x0049D1B0](symbols/0049D1B0.md) | func | Ai_Mode1PrepassVectorDrain | Native 163B prepass vector iteration through virtual +0x58, conditional +0x24 notification and logical end reset; other callers, ABI and runtime outcomes VERIFY |
 | [0x0049E560](symbols/0049E560.md) | func | Battle_RegisterUnitName | BattleUnit を評価器+0x1EEBEC(名前)と+0x1EEBDC(UnitData)の表に登録。通常型 0x56F880・簡易型 0x544290 の両コンストラクタから。召喚獣も登録される。 |
 | [0x0049E780](symbols/0049E780.md) | func | Battle_FindUnitByName | __fastcall(ECX=名前, EDX=評価器=context+0x504)。評価器+0x1EEBEC の multimap(名前→BattleUnit)を引き、生存(+0x1867C=0)を優先、なければ最初の倒れたユニットを返す。isDead/getDistance/getLife/skillTroop など19か所が使う。 |
@@ -245,7 +246,8 @@
 | [0x00544290](symbols/00544290.md) | func | Battle_CreateSimpleUnit | SimpleUnit の戦闘用オブジェクトを生成する入口。初期化で Unit+0x8C/0x8D を通常型として設定する。 |
 | [0x005445E0](symbols/005445E0.md) | func | SimpleUnit_OnDefeated | 簡易戦闘型 BattleUnit の vtable+0x58（除去）。+0x1867C と UnitData+0x1B1 を立て、HP+0x90=0、element_lost の子を消す。死亡だけでなく撤退でも使われる（実機：原作の簡易戦闘で HP が残ったままの除去が 187 件中 109 件） |
 | [0x00544770](symbols/00544770.md) | func | SimpleUnit_Retreat | SimpleUnit の vtable+0x5C。vf+0x58（除去）を呼んでから +0x18680=1 を立てる撤退処理。戦闘差し替えで外部結果の撤退に使い、撤退先・放浪化は原作が処理した |
-| [0x00544790](symbols/00544790.md) | func | SimpleUnit_ReceiveDamage | SimpleUnit の vtable+0x70。__thiscall(self, ダメージ, 攻撃者 or NULL, 技能, 0)、ret 0x10。HP+0x90 を引き、0 以下で撃破報酬・生存判定 0x588470→UnitData+0x1B0・vf+0x58・dead_event を行う。技能は NULL 不可。0xF4241 は即死の特別値 |
+| [0x00544790](symbols/00544790.md) | func | SimpleUnit_ReceiveDamage | SimpleUnit の vtable+0x70。__thiscall(self, ダメージ, 攻撃者 or NULL, 技能, 0)、ret 0x10。HP+0x90 を引き（0x5447F7）、0 以下で撃破報酬・break（死亡時スキル）・生存判定 0x588470→UnitData+0x1B0・vf+0x58・dead_event を行う。技能は NULL 不可。0xF4241 はただのダ |
+| [0x00544CC2](symbols/00544CC2.md) | code | SimpleUnit_DeadEventCallSite | SimpleUnit_ReceiveDamage 内の call 0x4321B0（dead_event、EBX=ユニット）。直前に dead_event が "count" かを調べ、dead_event_a/d を設定する（0x544BC7..） |
 | [0x005450C0](symbols/005450C0.md) | func | UnitData_ReleaseRecordTree | BattleUnit の記録木を後処理する破棄補助。0x543E00 側から呼ばれ、0x5454D0 に接続する。 |
 | [0x005454D0](symbols/005454D0.md) | func | UnitData_ReleaseRecordNode | 記録木の要素を解放する補助。後段で UnitData の文字列・vector 破棄 0x4591F0 へつながる。 |
 | [0x00545740](symbols/00545740.md) | func | Unit_UpdateSimpleFrame | SimpleUnit 側の戦闘更新経路。探索カウンタ Unit+0x1E534 を増やし、ノックバック判定より前に行動処理を進める。 |
@@ -257,6 +259,7 @@
 | [0x005479F0](symbols/005479F0.md) | code | Summon_LinkChildCall_Simple | 簡易戦闘の召喚 0x547490（ECX=スキル）内の 0x5774A0 呼び出し。スキルは呼び出し元 [esp+0x18]（呼ばれた側 [esp+0x24]）。 |
 | [0x00547AF0](symbols/00547AF0.md) | func | Skill_ExecuteHealAllTargets | heal + allfunc の支援候補を距離・確率などで判定し、対象ごとに 0x551490 を実行する。 |
 | [0x00547DB0](symbols/00547DB0.md) | func | Skill_ExecuteMissileAllTargets | missile + allfunc の対象処理経路。従来の未確定扱いは T012§21 で解消された。 |
+| [0x00547FC0](symbols/00547FC0.md) | func | SimpleUnit_CastSkill | SimpleUnit の死亡処理が def の "break"（死亡時スキル）を発動させるのに使う（0x544B21）。0x5449B1・0x544BB0 でも別の技能で呼ばれる。引数の意味は未確定 |
 | [0x0054A170](symbols/0054A170.md) | func | Skill_FilterSupportCandidates | Skill+0xA1C が指定されると支援候補に追加適用される除外フィルタ。フィルタの厳密な条件は未同定。 |
 | [0x0054A1C0](symbols/0054A1C0.md) | func | Skill_PrepareLargeCandidateSet | Skill+0xA18 と候補数を受ける補助。4件境界の前処理に関わるが、最終的な順序・件数の意味は未確定。 |
 | [0x0054A660](symbols/0054A660.md) | func | Skill_RankCandidateCallback | 24バイト単位の候補集合と Skill+0xA18 由来の第4引数を受ける。候補の選択・整列処理の詳細は未検証。 |
@@ -336,6 +339,7 @@
 | [0x005774A0](symbols/005774A0.md) | func | Unit_AppendSummonChild | 親 BattleUnit の子一覧 +0x178/+0x17C/+0x180 に子を追加する（stdcall(parent, child) ret 8）。子の +0x1E594 が 0 でなければ親に書き換える。呼出しは召喚生成直後の 0x54F245/0x5479F0/0x5537BF の3か所のみ。一覧から外す処理はない。 |
 | [0x00577600](symbols/00577600.md) | func | BattleCandidate_CountGatedStatusUpdate | Unit+0x18654が零の分岐と、非零時の候補条件によるUnit+0x18638/3C局所更新を持つ。最終ゲーム効果とABIは未検証。 |
 | [0x00578370](symbols/00578370.md) | func | Unit_ReceiveDamage | 通常 Unit の vtable+0x70（表の項目 0x63AA54）。SimpleUnit_ReceiveDamage と同じ形で、dead_event_a/d と 0x4321B0 呼出しを含む。直接 E8 の呼出し元は無い |
+| [0x00578AF5](symbols/00578AF5.md) | code | Unit_DeadEventCallSite | Unit_ReceiveDamage 内の call 0x4321B0（dead_event、EBX=ユニット）。SimpleUnit 側 0x544CC2 と同じ形（0x5789F2..） |
 | [0x00578B70](symbols/00578B70.md) | func | Status_ApplyGaugeReduction | 状態異常ゲージを減算し、unit_status_min を下限として制限する。EXP吸収分岐もこの関数内にある。 |
 | [0x00579940](symbols/00579940.md) | func | UnitData_CompareRecordKeys | 記録木の文字列キーを短文字列とヒープ文字列の双方から読み、辞書順に比較する処理を含む。 |
 | [0x00579EB0](symbols/00579EB0.md) | func | BattleCandidate_MergeBucketLists | 候補listから一時carryと26桶へ移管・mergeし、最後に入力listへ戻す原作x86経路。攻撃先の確定処理ではない。 |
@@ -524,7 +528,7 @@
 | [0x00AAD434](symbols/00AAD434.md) | global | g_GameManager_sceneId | 現在の場面番号（G+0x1EF144）。0=タイトル、4=シナリオ選択 など |
 | [0x00AC0914](symbols/00AC0914.md) | global | g_LastPresentResult | 直前の Present の戻り値。D3DERR_DEVICELOST(0x88760868)なら0x4C24B0が復帰処理（TestCooperativeLevel→Reset）に入る |
 | [0x00AC0918](symbols/00AC0918.md) | global | g_FrameStartTime | 1コマの開始時刻（timeGetTime、Sleep前）。起動直後0で、メインループ0x4C24B0だけが書く。0以外なら本ループが回っている |
-| [0x00B09758](symbols/00B09758.md) | object | g_DefaultSkill | 関数内 static の既定技能。0xB0A178 bit0 が 0 なら 0x599600(__stdcall) で組み立て、atexit に 0x608900 を登録（0x57E004..0x57E02E）。即死ダメージ vf+0x70(0xF4241, …, &g_DefaultSkill, 0) の技能引数に使う |
+| [0x00B09758](symbols/00B09758.md) | object | g_DefaultSkill | 関数内 static の既定技能。0xB0A178 bit0 が 0 なら 0x599600(__stdcall) で組み立て、atexit に 0x608900 を登録（0x57E004..0x57E02E）。自滅処理の vf+0x70(0xF4241, …, &g_DefaultSkill, 0) の技能引数に使う |
 
 ## 構造体一覧
 
