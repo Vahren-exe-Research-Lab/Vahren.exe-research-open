@@ -21,7 +21,7 @@ class PublicCandidateTests(unittest.TestCase):
   self.assertEqual(len(c),2373)
   self.assertEqual(len(list((ROOT/"reference/symbols").glob("*.md"))),520)
   self.assertEqual(len(list((ROOT/"reference/structs").glob("*.md"))),14)
-  self.assertEqual(len(list(ROOT.glob("REF_*.md"))),16)
+  self.assertEqual(len(list(ROOT.glob("REF_*.md"))),17)
  def test_research_search(self):
   v=search.search("symbols","Battle_ConstructScene")
   self.assertTrue(any("0x48D6A0".upper() in x["va"].upper() for x in v["symbols"]))

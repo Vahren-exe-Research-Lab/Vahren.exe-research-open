@@ -62,6 +62,7 @@ nav:
   - 分野別研究:
       - 戦闘乗っ取り: REF_BATTLE_TAKEOVER.md
       - 戦闘差し替え（簡易戦闘）: REF_BATTLE_SWAP_HEADLESS.md
+      - 簡易戦闘の中身（仕様、解析中）: REF_SIMPLE_BATTLE_ENGINE.md
       - 戦闘AI・士気: REF_BATTLE_AI_MORALE.md
       - 経験値・召喚: REF_UNIT_EXP_SUMMON.md
       - スキル処理: REF_SKILL_POST_ACTION.md

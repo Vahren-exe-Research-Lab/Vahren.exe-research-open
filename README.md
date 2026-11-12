@@ -62,6 +62,7 @@ GitHubの仕様上、**リポジトリ本体への直接pushは書き込み権�
 |---|---|
 | 戦闘乗っ取り・戦闘終了処理 | [REF_BATTLE_TAKEOVER.md](REF_BATTLE_TAKEOVER.md) |
 | 戦闘差し替え（簡易戦闘の計算を外部に任せる） | [REF_BATTLE_SWAP_HEADLESS.md](REF_BATTLE_SWAP_HEADLESS.md) |
+| 簡易戦闘の中身（外部で同じ計算をするための仕様、解析中） | [REF_SIMPLE_BATTLE_ENGINE.md](REF_SIMPLE_BATTLE_ENGINE.md) |
 | 戦闘AI・士気・退却 | [REF_BATTLE_AI_MORALE.md](REF_BATTLE_AI_MORALE.md) |
 | 経験値・訓練・召喚 | [REF_UNIT_EXP_SUMMON.md](REF_UNIT_EXP_SUMMON.md) |
 | 技能発動後処理 | [REF_SKILL_POST_ACTION.md](REF_SKILL_POST_ACTION.md) |
